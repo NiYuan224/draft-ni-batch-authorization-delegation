@@ -38,12 +38,12 @@ normative:
 informative:
   I-D.ietf-oauth-identity-chaining:
   I-D.ietf-oauth-identity-assertion-authz-grant:
-  RFC 2119:
-  RFC 8174:
-  RFC 6749:
-  RFC 9396:
-  RFC 8693:
-  RFC 7523:
+  RFC2119:
+  RFC8174:
+  RFC6749:
+  RFC9396:
+  RFC8693:
+  RFC7523:
   I-D.ietf-wimse-wpt:
   I-D.ietf-wimse-http-signature:
   I-D.ietf-wimse-mutual-tls:
