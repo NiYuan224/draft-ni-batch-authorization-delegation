@@ -34,16 +34,16 @@ author:
   email: liuchunchi@huawei.com
 
 normative:
-
-informative:
-  I-D.ietf-oauth-identity-chaining:
-  I-D.ietf-oauth-identity-assertion-authz-grant:
   RFC2119:
   RFC8174:
   RFC6749:
   RFC9396:
   RFC8693:
   RFC7523:
+
+informative:
+  I-D.ietf-oauth-identity-chaining:
+  I-D.ietf-oauth-identity-assertion-authz-grant:
   I-D.ietf-wimse-wpt:
   I-D.ietf-wimse-http-signature:
   I-D.ietf-wimse-mutual-tls:
