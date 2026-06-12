@@ -19,11 +19,10 @@
 # Change the file extension to match the format (.xml for XML, etc...)
 #
 ###
-title: "TODO - Your title"
-abbrev: "TODO - Abbreviation"
+title: "Batch Authorization Delegation"
 category: info
 
-docname: draft-todo-yourname-protocol-latest
+docname: draft-ni-batch-authorization-delegation-latest
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
@@ -45,7 +44,7 @@ venue:
 
 author:
  -
-    fullname: Your Name Here
+    fullname: Yuan Ni
     organization: Your Organization Here
     email: your.email@example.com
 
