@@ -180,12 +180,12 @@ In contrast, this document leverages authorization_details defined in {{RFC9396}
 
 The may_act JSON object contains fields that specify the intended actor for a particular authorization item. This document defines the following two fields:
 
-**sub**
-    **REQUIRED.** A string that uniquely identifies the sub-client authorized to exercise the permission.
+**sub**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**REQUIRED.** A string that uniquely identifies the sub-client authorized to exercise the permission.
 
 
-**aud**
-    **OPTIONAL.** A string that identifies the AS of the trust domain where the sub-client resides. If the sub-client and the leader-client are located in different Trust Domains, this claim MUST be present to specify the target AS. If this claim is omitted, it MUST be assumed that the sub-client and the leader-client reside in the same trust domain.
+**aud**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**OPTIONAL.** A string that identifies the AS of the trust domain where the sub-client resides. If the sub-client and the leader-client are located in different Trust Domains, this claim MUST be present to specify the target AS. If this claim is omitted, it MUST be assumed that the sub-client and the leader-client reside in the same trust domain.
 
 Figure 2 shows an example of authorization_details containing the may_act claim. It represents a typical travel management scenario in which the leader-client requests two distinct authorization items: a flight booking permission delegated to the Flight-Agent, and a hotel reservation permission delegated to the Hotel-Agent. Both sub-clients are located in the same trust domain as the leader-client so that the may_act.aud field is omitted. This structure demonstrates how multiple permissions can be bound to different actors within an authorization request.
 
@@ -231,20 +231,20 @@ After user consent, the AS issues an authorization code as a grant to the leader
 
 Subsequently,  the AS generates a batch token and returns it to the leader-client in the Token response. The batch token is a JWT access token conforming to {{RFC9068}}, with the following constraints on its claim values:
 
-**iss**
-    **REQUIRED.** The identifier of the AS.
+**iss**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**REQUIRED.** The identifier of the AS.
 
-**sub**
-    **REQUIRED.** The identifier of the user who grants the consent.
+**sub**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**REQUIRED.** The identifier of the user who grants the consent.
 
-**aud**
-    **REQUIRED.** MUST be set to the AS itself, as the batch token is intended only for token exchange at the AS and cannot be directly used at the RS.
+**aud**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**REQUIRED.** MUST be set to the AS itself, as the batch token is intended only for token exchange at the AS and cannot be directly used at the RS.
 
-**client_id**
-    **REQUIRED.** The identifier of the leader-client that initiated the authorization request.
+**client_id**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**REQUIRED.** The identifier of the leader-client that initiated the authorization request.
 
-**authorization_details**
-    **REQUIRED.** An JSON array containing all the consented authorization items, including the permission descriptions and their correspondiing may_act delegation constraints.
+**authorization_details**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**REQUIRED.** An JSON array containing all the consented authorization items, including the permission descriptions and their correspondiing may_act delegation constraints.
 
 Figure 3 shows an example of the batch token JWT payload, which encapsulates all consented authorization items from Figure 2. The sub claim identifies the user who consents, the client_id claim identifies the travel assistant as the leader-client that initiates the request, each may_act.sub field identifies the sub-client authorized to exercise the corresponding permission. The aud claim is set to the AS itself, as the batch token will be presented back to the AS for further token exchange.
 
@@ -278,6 +278,56 @@ Figure 3 shows an example of the batch token JWT payload, which encapsulates all
 }
 ```
 *Figure 3: Batch Token JWT Payload*
+
+## Downscoped Token
+
+
+### Token Exchange Request
+
+When a sub-client receives a batch token from the leader-client, it MUST perform a token exchange request to the AS to obtain a downscoped token. The parameters described in section 2.1 of {{RFC8693}} apply here with the following restrictions:
+
+subject_token
+  REQUIRED. The batch token received from the leader-client.
+
+subject_token_type
+  REQUIRED. urn:ietf:params:oauth:token-type:jwt.
+
+
+Since the AS has to identify the requesting sub-client to filter the authorization items, it MUST authenticate the sub-client. The AS MAY use the following authentication methods:
+
+*  Password-based authentication as defined in Section 2.3.1 of {{RFC6749}}.
+
+*  Bearer JWT-based authentication as defined in {{RFC7523}}.
+
+*  Workload Proof Token, HTTP Message Signatures, Mutual TLS as defined in {{I-D.ietf-wimse-wpt}}, {{I-D.ietf-wimse-http-signature}}, and {{I-D.ietf-wimse-mutual-tls}}.
+
+*  Actor token as defined in {{RFC8693}}.
+
+Figure 4 shows a token exchange request initiated by the Flight-Agent. In this request, the Flight-Agent provides the received batch token from Figure 3 as the subject_token. To satisfy the requirement for client authentication, the Flight-Agent provides its own identity token as an actor_token (detailed in Figure 5).
+
+```text
+ POST /as/token.oauth2 HTTP/1.1
+ Host: as.example.com
+ Content-Type: application/x-www-form-urlencoded
+
+ grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange
+ &subject_token=[Encoded batch token]
+ &subject_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
+ &actor_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovL2FzLmV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9vcmlnaW5hbC1pc3N1ZXIuZXhhbXBsZS5uZXQiLCJleHAiOjE3Nzg0MDAwMDAsInN1YiI6ImZsaWdodF9hZ2VudEBleGFtcGxlLm5ldCJ9.lcg7QKoGrsD_TICwHJnb0_Fsd5FlocXXXQhjYi2-hC4
+ &actor_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
+ ```
+*Figure 4: Token Exchange Request*
+
+
+```text
+{
+  "aud":"https://as.example.com",
+  "iss":"https://original-issuer.example.net",
+  "exp": 1778400000,
+  "sub":"flight_agent@example.net"
+}
+```
+*Figure 5: Actor Token Claims*
 
 # Security Considerations
 
