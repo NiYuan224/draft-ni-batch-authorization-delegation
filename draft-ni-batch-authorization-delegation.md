@@ -456,6 +456,129 @@ Steps (1)-(4) are the same as in Figure 1.
 
 Steps (6)-(9) are the same as in Figure 1.
 
+### Key Messages
+
+The following shows the key tokens in the workflow of Figure 7.
+
+#### Batch Token
+
+Figure 8 illustrates a batch token payload issued by the Financial Alliance AS in step (4).
+
+The batch token contains two authorization items: one for searching and calculating financial benefits at Bank_A, and another for the same actions at Bank_B. The may_act.aud field anchors the permission to the target bank's AS (e.g., https://as.bank_a.example.com), while the may_act.sub field strictly binds the execution of the search and calculation to that target bank's designated agent (e.g., benefit_agent@bank_a.example.com).
+
+```text
+{
+  "iss": "https://as.alliance.example.com",
+  "sub": "user@alliance.example.com",
+  "aud": "https://as.alliance.example.com",
+  "client_id": "finance_assistant@alliance.example.com",
+  "exp": 1777881600,
+  "iat": 1777795200,
+  "jti": "4a7b203c-e591-4916-b8df-d2b389f4621c",
+  "authorization_details": [
+    {
+      "type": "benefit_bank_a",
+      "actions": ["search", "calculate"],
+      "locations": ["https://bank_a.example.com/benefits"],
+      "may_act": {
+        "sub": "benefit_agent@bank_a.example.com",
+        "aud": "https://as.bank_a.example.com"
+      }
+    },
+    {
+      "type": "benefit_bank_b",
+      "actions": ["search", "calculate"],
+      "locations": ["https://bank_b.example.com/benefits"],
+      "may_act": {
+        "sub": "benefit_agent@bank_b.example.com",
+        "aud": "https://as.bank_b.example.com"
+      }
+    }
+  ]
+}
+```
+*Figure 8: Batch Token Payload*
+
+
+#### JWT Authorization Grant
+Figure 9 shows the JAG payload issued by the Finance Alliance AS in step (c), specifically filtered for Bank_A's domain.
+
+In accordance with step (b), the Finance Alliance AS inspects the may_act.aud fields of the batch token (Figure 8), extracts and encapsulates the benefit_bank_a item into the JAG. Moreover, the top-level aud claim targets Bank_A's AS.
+
+```text
+{
+  "iss": "https://as.alliance.example.com",
+  "sub": "user@alliance.example.com",
+  "aud": "https://as.bank_a.example.com",
+  "client_id": "finance_assistant@alliance.example.com",
+  "iat": 1777795210,
+  "exp": 1777795300,
+  "authorization_details": [
+    {
+      "type": "benefit_bank_a",
+      "actions": ["search", "calculate"],
+      "locations": ["https://bank_a.example.com/benefits"],
+      "may_act": {
+        "sub": "benefit_agent@bank_a.example.com"
+      }
+    }
+  ]
+}
+```
+*Figure 9: JAG Payload*
+
+#### Access Token
+Figure 10 illustrates the cross-domain Access Token payload issued by Bank_A's AS in step (e). As described in step (e), this token constitutes a batch token localized for Bank_A's domain, so that the aud claim is set to Bank_A's AS for further token exchange.
+
+```text
+{
+  "iss": "https://as.bank_a.example.com",
+  "sub": "user@alliance.example.com",
+  "aud": "https://as.bank_a.example.com",
+  "client_id": "finance_assistant@alliance.example.com",
+  "iat": 1777795220,
+  "exp": 1777881600,
+  "jti": "2d8f93e1-7c5b-4a3d-81ee-629b3f4c7d5a",
+  "authorization_details": [
+    {
+      "type": "benefit_bank_a",
+      "actions": ["search", "calculate"],
+      "locations": ["https://bank_a.example.com/benefits"],
+      "may_act": {
+        "sub": "benefit_agent@bank_a.example.com"
+      }
+    }
+  ]
+}
+```
+*Figure 10: Access Token Payload*
+
+#### Downscoped Token
+Figure 11 illustrates the final downscoped token payload issued by Bank_A's AS in step (8).
+
+When the benefit_agent exchanges the access token, Bank_A's AS matches its authenticated identity with the may_act.sub claim, filters the corresponding permissions and removes the may_act claim entirely. Moreover, Bank_A's AS sets aud as https://bank_a.example.com/benefits, the specific target RS, and sets client_id as benefit_agent.
+
+```text
+{
+  "iss": "https://as.bank_a.example.com",
+  "sub": "user@alliance.example.com",
+  "client_id": "benefit_agent@bank_a.example.com",
+  "aud": "https://bank_a.example.com/benefits",
+  "iat": 1777795230,
+  "exp": 1777881600,
+  "jti": "e9a4f2b1-3d7c-482e-96bb-1823c4d5f6a7",
+  "authorization_details": [
+    {
+      "type": "benefit_bank_a",
+      "actions": ["search", "calculate"],
+      "locations": ["https://bank_a.example.com/benefits"]
+    }
+  ]
+}
+```
+*Figure 11: Downscoped Token Payload*
+
+
 # Security Considerations
 
 TODO Security
