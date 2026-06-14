@@ -311,17 +311,17 @@ Table of Contents
    perform which permission, thus changing the entity-level delegation
    into a item-level delegation.
 
-   may_act REQUIRED.  A JSON object that identifies the specific sub-
+   *may_act* *REQUIRED.* A JSON object that identifies the specific sub-
    client authorized to exercise the permission.
 
    The may_act JSON object contains fields that specify the intended
    actor for a particular authorization item.  This document defines the
    following two fields:
 
-   sub REQUIRED.  A string that uniquely identifies the sub-client
+   *sub* *REQUIRED.* A string that uniquely identifies the sub-client
    authorized to exercise the permission.
 
-   aud OPTIONAL.  A string that identifies the AS of the trust domain
+   *aud* *OPTIONAL.* A string that identifies the AS of the trust domain
    where the sub-client resides.  If the sub-client and the leader-
    client are located in different Trust Domains, this claim MUST be
    present to specify the target AS.  If this claim is omitted, it MUST
