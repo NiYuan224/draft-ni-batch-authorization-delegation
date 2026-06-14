@@ -79,7 +79,26 @@ To bridge this gap, this document adds the delegation information directly to th
 
 # Conventions and Definitions
 
-{::boilerplate bcp14-tagged}
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 {{RFC2119}} {{RFC8174}} when, and only when, they appear in all capitals, as shown here.
+
+This document uses common OAuth and token processing terms such as "access token", "authorization server" (AS), "resource server" (RS), "authorization request", "access token response" defined by {{RFC6749}}, "Trust Domain", "JWT Authorization Grant" defined by {{I-D.ietf-oauth-identity-chaining}}, "identity assertion" defined by {{I-D.ietf-oauth-identity-assertion-authz-grant}}.
+
+In addition, the following terms are defined for this document:
+
+Leader-Client:  The entity responsible for coordinating tasks and requesting permissions in a batch for sub-clients. The leader-client initiates rich authorization requests to the AS, and sends the obtained Batch Tokens to sub-clients. The leader-client includes a master agent, a microservice orchestrator, or an API gateway.
+
+Sub-Client:  The entity that is subordinate to the leader-client and interacts with Resource Servers (RS) to perform specific sub-tasks. The sub-client exchanges the received Batch Token for Downscoped Token. Sub-clients include sub-agents and microservices.
+
+Batch Authorization Delegation: A mechanism proposed in this document that a leader-client requests permissions in a batch and delegates them to its subordinate sub-clients.
+
+Authorization Item: An authorization item includes a fine-grained description of a permission and its corresponding delegation constraint. Multiple authorization items are expressed with the structure of authorization_details, and included in the rich authorization request and the issued Batch Token.
+
+Batch Token: A specific JWT access token issued by the AS to the leader-client. It encapsulates multiple authorization items, enabling subsequent delegation.
+
+Delegation Constraint: The may_act claim within an authorization item that specifies the sub-client authorized to act on that permission.
+
+Downscoped Token: The access token issued to a sub-client as a result of token exchange, which is to be used at the RS to access protected resources. It contains only the specific subset of authorization items whose delegation constraints match the requesting sub-client's identity.
+
 
 
 # Security Considerations
