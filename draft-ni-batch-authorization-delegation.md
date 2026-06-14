@@ -329,6 +329,53 @@ Figure 4 shows a token exchange request initiated by the Flight-Agent. In this r
 ```
 *Figure 5: Actor Token Claims*
 
+
+### Processing Rules of the Authorization Server
+
+In addition to authenticating the requesting sub-client, the AS MUST
+
+* Validate the batch token provided in the subject_token.
+
+* Retrieve the authorization_details from the batch token’s payload and filter only those authorization items whose may_act.sub fields exactly matches the authenticated sub-client’s identity.
+
+### Downscoped Token Issuance
+
+The AS generates a downscoped token that only contains the permissions in the filtered authorization items. The format of this token is at the discretion of the AS. It MAY be a JWT access token conforming to {{RFC9068}} or any other format. If a JWT downscoped token is used, the following constraints on its claim values apply:
+
+**sub**
+  **REQUIRED.** The owner who grants the consent (copied from the sub claim of the batch token in the subject_token field).
+
+**client_id**
+  **REQUIRED.** The authenticated Sub‑Client.
+
+**aud**
+  **OPTIONAL.** The target RS where the sub-client intends to use the downscoped token.
+
+**authorization_details**
+  **OPTIONAL.** A JSON array containing the permissions from the filtered authorization items. Since the may_act claim has already been enforced as a delegation constraint by the AS during token exchange, it MAY be omitted in the Downscoped Token.
+
+Figure 6 shows a downscoped token issued to the Flight-Agent after token exchange. Its sub claim identifies the end‑user who grants the consent, its aud claim points directly to target service (https://example.com/flights), and the client_id identifies the Flight-Agent. The authorization_details array contains only the flight‑booking permission, with the may_act claim removed.
+
+```text
+{
+  "iss": "https://as.example.com",
+  "sub": "user@example.com",
+  "aud": "https://example.com/flights",
+  "client_id": "flight_agent@example.com",
+  "exp": 1777881600,
+  "iat": 1777795210,
+  "jti": "downscoped-token-7c8d9a2e-4b12-4a3f-8e6c-2f9a8b3c7d5e",
+  "authorization_details": [
+    {
+      "type": "flight_booking",
+      "actions": ["search", "book"],
+      "locations": ["https://example.com/flights"],
+    }
+  ]
+}
+```
+*Figure 6: Downscoped Token Payload*
+
 # Security Considerations
 
 TODO Security
