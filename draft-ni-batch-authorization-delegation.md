@@ -210,6 +210,20 @@ Figure 2 shows an example of authorization_details containing the may_act claim.
 ```
 *Figure 2: authorization_details with the may_act claim*
 
+### Processing Rules of the Authorization Server
+When processing an authorization request that contains authorization_details with may_act claims, the AS MUST ask the user for consent to the requested authorization items. The general processing rules of the AS defined in {{RFC9396}} apply, with the following extensions:
+
+* The AS MUST validate that the sub-client identified in the may_act.sub field is known. If the may_act.aud field is present, the AS MUST validate that the target AS is reachable and trusted according to local policies.
+
+* The AS MUST present all the authorization items, including the requested permissions and their corresponding intended sub-clients to the user. The user MAY:
+
+  * Grant all requested authorization items.
+
+  * Grant only a subset of the authorization items.
+
+  * For a specific item, accept the proposed sub-clientor or select an alternative eligible sub-client if permitted by the AS.
+
+* The AS MUST record the consented authorization items, including the may_act claims, as part of a grant (e.g., the authorization code).
 
 # Security Considerations
 
