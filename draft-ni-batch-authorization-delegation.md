@@ -74,7 +74,7 @@ to obtain limited access to protected resources on behalf of a resource owner. H
 
 In summary, the existing OAuth 2.0 protocal and its extensions lack a mechanism to express, partition, and delegate fine-grained structured permissions across multiple collaborating entities.
 
-To bridge this gap, this document adds the delegation information directly to the multiple fine-grained permissions in the RAR. By extending the authorization_details with a may_act claim, a client can request a comprehensive set of permissions, each of which specify which actor is authorized to delegate. The Authorization Server (AS) then responds this request with a Batch Token, which contains the above permissions and their corresponding delegation constraints. When an actor performs a token exchange using the Batch Token, the AS applies a downscoping strategy, filtering the permissions based on the consistancy of the may_act claim and actor's identity. This ensures a convenient authorization experience for the user while strictly enforcing the principle of least privilege across multiple collaborating entities.
+To bridge this gap, this document adds the delegation information directly to the multiple fine-grained permissions in the RAR. By extending the authorization_details with a may_act claim, a client can request a comprehensive set of permissions, each of which specify which actor is authorized to delegate. The Authorization Server (AS) then responds this request with a batch token, which contains the above permissions and their corresponding delegation constraints. When an actor performs a token exchange using the batch token, the AS applies a downscoping strategy, filtering the permissions based on the consistancy of the may_act claim and actor's identity. This ensures a convenient authorization experience for the user while strictly enforcing the principle of least privilege across multiple collaborating entities.
 
 
 # Conventions and Definitions
@@ -85,13 +85,13 @@ This document uses common OAuth and token processing terms such as "access token
 
 In addition, the following terms are defined for this document:
 
-Leader-Client:  The entity responsible for coordinating tasks and requesting permissions in a batch for sub-clients. The leader-client initiates rich authorization requests to the AS, and sends the obtained Batch Tokens to sub-clients. The leader-client includes a master agent, a microservice orchestrator, or an API gateway.
+Leader-Client:  The entity responsible for coordinating tasks and requesting permissions in a batch for sub-clients. The leader-client initiates rich authorization requests to the AS, and sends the obtained batch tokens to sub-clients. The leader-client includes a master agent, a microservice orchestrator, or an API gateway.
 
-Sub-Client:  The entity that is subordinate to the leader-client and interacts with Resource Servers (RS) to perform specific sub-tasks. The sub-client exchanges the received Batch Token for Downscoped Token. Sub-clients include sub-agents and microservices.
+Sub-Client:  The entity that is subordinate to the leader-client and interacts with Resource Servers (RS) to perform specific sub-tasks. The sub-client exchanges the received batch token for Downscoped Token. Sub-clients include sub-agents and microservices.
 
 Batch Authorization Delegation: A mechanism proposed in this document that a leader-client requests permissions in a batch and delegates them to its subordinate sub-clients.
 
-Authorization Item: An authorization item includes a fine-grained description of a permission and its corresponding delegation constraint. Multiple authorization items are expressed with the structure of authorization_details, and included in the rich authorization request and the issued Batch Token.
+Authorization Item: An authorization item includes a fine-grained description of a permission and its corresponding delegation constraint. Multiple authorization items are expressed with the structure of authorization_details, and included in the rich authorization request and the issued batch token.
 
 Batch Token: A specific JWT access token issued by the AS to the leader-client. It encapsulates multiple authorization items, enabling subsequent delegation.
 
@@ -103,9 +103,9 @@ Downscoped Token: The access token issued to a sub-client as a result of token e
 
 This document specifies a mechanism combining OAuth RAR {{RFC9396}} and Token Exchange {{RFC8693}} to achieve Batch Authorization Delegation.
 
-The leader-client sends a rich authorization request with multiple authorization items to the AS. Each authorization item not only describes the required permission but also declares the sub-client to which the permission can be delegated via delegation constraints. Upon user confirmation, the AS issues a Batch Token to the leader-client, which encapsulates the authorization items confirmed by the user. The leader-client distributes the Batch Token to a sub-client.
+The leader-client sends a rich authorization request with multiple authorization items to the AS. Each authorization item not only describes the required permission but also declares the sub-client to which the permission can be delegated via delegation constraints. Upon user confirmation, the AS issues a batch token to the leader-client, which encapsulates the authorization items confirmed by the user. The leader-client distributes the batch token to a sub-client.
 
-The sub-client initiates a token exchange request to the AS. The AS matches the sub-client's identity with the delegation constraints in the Batch Token, and then filters out one or more authorization items corresponding to this specific sub-client. Then the AS generates a downscoped token containing only the permissions from the filtered authorization items.
+The sub-client initiates a token exchange request to the AS. The AS matches the sub-client's identity with the delegation constraints in the batch token, and then filters out one or more authorization items corresponding to this specific sub-client. Then the AS generates a downscoped token containing only the permissions from the filtered authorization items.
 
 Such a mechanism enables the leader-client to perform a one-time batch authorization as well as to ensure each sub-client obtains an access token containing only the permissions it requires, thereby realizing both efficiency and security.
 
@@ -154,13 +154,13 @@ Figure 1 shows the flow of Batch Authorization Delegation. Note that a leader-cl
 
 (3) The user confirms all or some of the authorization items and sends the result back to the AS.
 
-(4) The AS generates a Batch Token, which encapsulates the authorization items confirmed by the user and issues it to the leader-client.
+(4) The AS generates a batch token, which encapsulates the authorization items confirmed by the user and issues it to the leader-client.
 
-(5) The leader-client distributes the Batch Token to the sub-client.
+(5) The leader-client distributes the batch token to the sub-client.
 
-(6) The sub-client initiates a token exchange request to the AS to exchange the Batch Token to a downscoped token.
+(6) The sub-client initiates a token exchange request to the AS to exchange the batch token to a downscoped token.
 
-(7) The AS matches the identity of sub-client to the delegation constraints in the Batch Token to filter the authorization items corresponding to the sub-client.
+(7) The AS matches the identity of sub-client to the delegation constraints in the batch token to filter the authorization items corresponding to the sub-client.
 
 (8) The AS generates a downscoped token that only contains the permissions in the filtered authorization items and send it to the sub-client.
 
@@ -224,6 +224,59 @@ When processing an authorization request that contains authorization_details wit
   * For a specific item, accept the proposed sub-clientor or select an alternative eligible sub-client if permitted by the AS.
 
 * The AS MUST record the consented authorization items, including the may_act claims, as part of a grant (e.g., the authorization code).
+
+### Batch Token Issuance
+After user consent, the AS issues an authorization code as a grant to the leader-client. The leader-client then exchanges the authorization code for a batch token, following the standard authorization response and token request flow as defined in {{RFC6749}}.
+
+Subsequently,  the AS generates a batch token and returns it to the leader-client in the Token response. The batch token is a JWT access token conforming to {{RFC9068}}, with the following constraints on its claim values:
+
+**iss**
+    **REQUIRED.** The identifier of the AS.
+
+**sub**
+    **REQUIRED.** The identifier of the user who grants the consent.
+
+**aud**
+    **REQUIRED.** MUST be set to the AS itself, as the batch token is intended only for token exchange at the AS and cannot be directly used at the RS.
+
+**client_id**
+    **REQUIRED.** The identifier of the leader-client that initiated the authorization request.
+
+**authorization_details**
+    **REQUIRED.** An JSON array containing all the consented authorization items, including the permission descriptions and their correspondiing may_act delegation constraints.
+
+Figure 3 shows an example of the batch token JWT payload, which encapsulates all consented authorization items from Figure 2. The sub claim identifies the user who consents, the client_id claim identifies the travel assistant as the leader-client that initiates the request, each may_act.sub field identifies the sub-client authorized to exercise the corresponding permission. The aud claim is set to the AS itself, as the batch token will be presented back to the AS for further token exchange.
+
+```text
+{
+  "iss": "https://as.example.com",
+  "sub": "user@example.com",
+  "aud": "https://as.example.com",
+  "client_id": "travel_assistant@example.com",
+  "exp": 1777881600,
+  "iat": 1777795200,
+  "jti": "batch-token-8b4729cc-32e4-4370-8cf0-5796154d1296",
+  "authorization_details": [
+    {
+      "type": "flight_booking",
+      "actions": ["search", "book"],
+      "locations": ["https://example.com/flights"],
+      "may_act": {
+        "sub": "flight_agent@example.com"
+      }
+    },
+    {
+      "type": "hotel_reservation",
+      "actions": ["search", "book"],
+      "locations": ["https://example.com/hotels"],
+      "may_act": {
+        "sub": "hotel_agent@example.com"
+      }
+    }
+  ]
+}
+```
+*Figure 3: Batch Token JWT Payload*
 
 # Security Considerations
 
