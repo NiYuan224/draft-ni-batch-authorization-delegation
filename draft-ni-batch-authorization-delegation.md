@@ -99,6 +99,15 @@ Delegation Constraint: The may_act claim within an authorization item that speci
 
 Downscoped Token: The access token issued to a sub-client as a result of token exchange, which is to be used at the RS to access protected resources. It contains only the specific subset of authorization items whose delegation constraints match the requesting sub-client's identity.
 
+# Batch Authorization Delegation
+
+This document specifies a mechanism combining OAuth RAR {{RFC9396}} and Token Exchange {{RFC8693}} to achieve Batch Authorization Delegation.
+
+The leader-client sends a rich authorization request with multiple authorization items to the AS. Each authorization item not only describes the required permission but also declares the sub-client to which the permission can be delegated via delegation constraints. Upon user confirmation, the AS issues a Batch Token to the leader-client, which encapsulates the authorization items confirmed by the user. The leader-client distributes the Batch Token to a sub-client.
+
+The sub-client initiates a token exchange request to the AS. The AS matches the sub-client's identity with the delegation constraints in the Batch Token, and then filters out one or more authorization items corresponding to this specific sub-client. Then the AS generates a downscoped token containing only the permissions from the filtered authorization items.
+
+Such a mechanism enables the leader-client to perform a one-time batch authorization as well as to ensure each sub-client obtains an access token containing only the permissions it requires, thereby realizing both efficiency and security.
 
 
 # Security Considerations
