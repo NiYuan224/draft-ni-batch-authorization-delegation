@@ -1200,6 +1200,9 @@ svg {
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2.2.1">
                     <p id="section-toc.1-1.4.2.2.2.1.1"><a href="#section-4.2.1" class="auto internal xref">4.2.1</a>.  <a href="#name-workflow" class="internal xref">Workflow</a></p>
 </li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2.2.2">
+                    <p id="section-toc.1-1.4.2.2.2.2.1"><a href="#section-4.2.2" class="auto internal xref">4.2.2</a>.  <a href="#name-key-messages" class="internal xref">Key Messages</a></p>
+</li>
                 </ul>
 </li>
             </ul>
@@ -1650,6 +1653,143 @@ to obtain limited access to protected resources on behalf of a resource owner. H
 <p id="section-4.2.1-11">(e) The AS of Domain B validates the JAG, extracts and encapsulates the filtered authorization items in an access token and sends it to the leader-client. This access token itself constitutes a Domain B-specific batch token, whose authorization items are a subset of those in the original batch token issued in step (4).<a href="#section-4.2.1-11" class="pilcrow">¶</a></p>
 <p id="section-4.2.1-12">(f) The leader-client sends the access token to the sub-client.<a href="#section-4.2.1-12" class="pilcrow">¶</a></p>
 <p id="section-4.2.1-13">Steps (6)-(9) are the same as in Figure 1.<a href="#section-4.2.1-13" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="key-messages">
+<section id="section-4.2.2">
+          <h4 id="name-key-messages">
+<a href="#section-4.2.2" class="section-number selfRef">4.2.2. </a><a href="#name-key-messages" class="section-name selfRef">Key Messages</a>
+          </h4>
+<p id="section-4.2.2-1">The following shows the key tokens in the workflow of Figure 7.<a href="#section-4.2.2-1" class="pilcrow">¶</a></p>
+<div id="batch-token-1">
+<section id="section-4.2.2.1">
+            <h5 id="name-batch-token-2">
+<a href="#section-4.2.2.1" class="section-number selfRef">4.2.2.1. </a><a href="#name-batch-token-2" class="section-name selfRef">Batch Token</a>
+            </h5>
+<p id="section-4.2.2.1-1">Figure 8 illustrates a batch token payload issued by the Financial Alliance AS in step (4).<a href="#section-4.2.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.1-2">The batch token contains two authorization items: one for searching and calculating financial benefits at Bank_A, and another for the same actions at Bank_B. The may_act.aud field anchors the permission to the target bank's AS (e.g., https://as.bank_a.example.com), while the may_act.sub field strictly binds the execution of the search and calculation to that target bank's designated agent (e.g., benefit_agent@bank_a.example.com).<a href="#section-4.2.2.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.1-3"><code>text
+{
+  "iss": "https://as.alliance.example.com",
+  "sub": "user@alliance.example.com",
+  "aud": "https://as.alliance.example.com",
+  "client_id": "finance_assistant@alliance.example.com",
+  "exp": 1777881600,
+  "iat": 1777795200,
+  "jti": "4a7b203c-e591-4916-b8df-d2b389f4621c",
+  "authorization_details": [
+    {
+      "type": "benefit_bank_a",
+      "actions": ["search", "calculate"],
+      "locations": ["https://bank_a.example.com/benefits"],
+      "may_act": {
+        "sub": "benefit_agent@bank_a.example.com",
+        "aud": "https://as.bank_a.example.com"
+      }
+    },
+    {
+      "type": "benefit_bank_b",
+      "actions": ["search", "calculate"],
+      "locations": ["https://bank_b.example.com/benefits"],
+      "may_act": {
+        "sub": "benefit_agent@bank_b.example.com",
+        "aud": "https://as.bank_b.example.com"
+      }
+    }
+  ]
+}
+</code>
+              <em>Figure 8: Batch Token Payload</em><a href="#section-4.2.2.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="jwt-authorization-grant">
+<section id="section-4.2.2.2">
+            <h5 id="name-jwt-authorization-grant">
+<a href="#section-4.2.2.2" class="section-number selfRef">4.2.2.2. </a><a href="#name-jwt-authorization-grant" class="section-name selfRef">JWT Authorization Grant</a>
+            </h5>
+<p id="section-4.2.2.2-1">Figure 9 shows the JAG payload issued by the Finance Alliance AS in step (c), specifically filtered for Bank_A's domain.<a href="#section-4.2.2.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.2-2">In accordance with step (b), the Finance Alliance AS inspects the may_act.aud fields of the batch token (Figure 8), extracts and encapsulates the benefit_bank_a item into the JAG. Moreover, the top-level aud claim targets Bank_A's AS.<a href="#section-4.2.2.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.2-3"><code>text
+{
+  "iss": "https://as.alliance.example.com",
+  "sub": "user@alliance.example.com",
+  "aud": "https://as.bank_a.example.com",
+  "client_id": "finance_assistant@alliance.example.com",
+  "iat": 1777795210,
+  "exp": 1777795300,
+  "authorization_details": [
+    {
+      "type": "benefit_bank_a",
+      "actions": ["search", "calculate"],
+      "locations": ["https://bank_a.example.com/benefits"],
+      "may_act": {
+        "sub": "benefit_agent@bank_a.example.com"
+      }
+    }
+  ]
+}
+</code>
+              <em>Figure 9: JAG Payload</em><a href="#section-4.2.2.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="access-token">
+<section id="section-4.2.2.3">
+            <h5 id="name-access-token">
+<a href="#section-4.2.2.3" class="section-number selfRef">4.2.2.3. </a><a href="#name-access-token" class="section-name selfRef">Access Token</a>
+            </h5>
+<p id="section-4.2.2.3-1">Figure 10 illustrates the cross-domain Access Token payload issued by Bank_A's AS in step (e). As described in step (e), this token constitutes a batch token localized for Bank_A's domain, so that the aud claim is set to Bank_A's AS for further token exchange.<a href="#section-4.2.2.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.3-2"><code>text
+{
+  "iss": "https://as.bank_a.example.com",
+  "sub": "user@alliance.example.com",
+  "aud": "https://as.bank_a.example.com",
+  "client_id": "finance_assistant@alliance.example.com",
+  "iat": 1777795220,
+  "exp": 1777881600,
+  "jti": "2d8f93e1-7c5b-4a3d-81ee-629b3f4c7d5a",
+  "authorization_details": [
+    {
+      "type": "benefit_bank_a",
+      "actions": ["search", "calculate"],
+      "locations": ["https://bank_a.example.com/benefits"],
+      "may_act": {
+        "sub": "benefit_agent@bank_a.example.com"
+      }
+    }
+  ]
+}
+</code>
+              <em>Figure 10: Access Token Payload</em><a href="#section-4.2.2.3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="downscoped-token-1">
+<section id="section-4.2.2.4">
+            <h5 id="name-downscoped-token-2">
+<a href="#section-4.2.2.4" class="section-number selfRef">4.2.2.4. </a><a href="#name-downscoped-token-2" class="section-name selfRef">Downscoped Token</a>
+            </h5>
+<p id="section-4.2.2.4-1">Figure 11 illustrates the final downscoped token payload issued by Bank_A's AS in step (8).<a href="#section-4.2.2.4-1" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.4-2">When the benefit_agent exchanges the access token, Bank_A's AS matches its authenticated identity with the may_act.sub claim, filters the corresponding permissions and removes the may_act claim entirely. Moreover, Bank_A's AS sets aud as https://bank_a.example.com/benefits, the specific target RS, and sets client_id as benefit_agent.<a href="#section-4.2.2.4-2" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.4-3"><code>text
+{
+  "iss": "https://as.bank_a.example.com",
+  "sub": "user@alliance.example.com",
+  "client_id": "benefit_agent@bank_a.example.com",
+  "aud": "https://bank_a.example.com/benefits",
+  "iat": 1777795230,
+  "exp": 1777881600,
+  "jti": "e9a4f2b1-3d7c-482e-96bb-1823c4d5f6a7",
+  "authorization_details": [
+    {
+      "type": "benefit_bank_a",
+      "actions": ["search", "calculate"],
+      "locations": ["https://bank_a.example.com/benefits"]
+    }
+  ]
+}
+</code>
+              <em>Figure 11: Downscoped Token Payload</em><a href="#section-4.2.2.4-3" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 </section>
