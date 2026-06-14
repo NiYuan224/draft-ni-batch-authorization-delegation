@@ -313,8 +313,9 @@ Table of Contents
    perform which permission, thus changing the entity-level delegation
    into a item-level delegation.
 
-   *may_act* *REQUIRED.* A JSON object that identifies the specific sub-
-   client authorized to exercise the permission.
+   *may_act*
+   *REQUIRED.* A JSON object that identifies the specific sub-client
+   authorized to exercise the permission.
 
    The may_act JSON object contains fields that specify the intended
    actor for a particular authorization item.  This document defines the
