@@ -166,6 +166,50 @@ Figure 1 shows the flow of Batch Authorization Delegation. Note that a leader-cl
 
 (9) The sub-client accesses the RS with the downscoped token.
 
+## Batch Token
+
+### RAR Extension with the may_act claim
+
+In {{RFC8693}}, the may_act is a top-level claim, which makes a statement of one party is authorized to become the actor and act on behalf of another party. It is an entity-level delegation, because it only defines who is authorized to act.
+
+In contrast, this document leverages authorization_details defined in {{RFC9396}} to describe multiple authorization items, each of which contains a permission and a nested may_act claim serving as a delegation constraint. This helps to define who is authorized to perform which permission, thus changing the entity-level delegation into a item-level delegation.
+
+may_act
+    REQUIRED. A JSON object that identifies the specific sub-client authorized to exercise the permission.
+
+The may_act JSON object contains fields that specify the intended actor for a particular authorization item. This document defines the following two fields:
+
+sub
+    REQUIRED. A string that uniquely identifies the sub-client authorized to exercise the permission.
+
+
+aud
+    OPTIONAL. A string that identifies the AS of the trust domain where the sub-client resides. If the sub-client and the leader-client are located in different Trust Domains, this claim MUST be present to specify the target AS. If this claim is omitted, it MUST be assumed that the sub-client and the leader-client reside in the same trust domain.
+
+Figure 2 shows an example of authorization_details containing the may_act claim. It represents a typical travel management scenario in which the leader-client requests two distinct authorization items: a flight booking permission delegated to the Flight-Agent, and a hotel reservation permission delegated to the Hotel-Agent. Both sub-clients are located in the same trust domain as the leader-client so that the may_act.aud field is omitted. This structure demonstrates how multiple permissions can be bound to different actors within an authorization request.
+
+```text
+[
+  {
+    "type": "flight_booking",
+    "actions": ["search", "book"],
+    "locations": ["https://example.com/flights"],
+    "may_act": {
+        "sub": "flight_agent@example.com"
+    }
+  },
+  {
+    "type": "hotel_reservation",
+    "actions": ["search", "book"],
+    "locations": ["https://example.com/hotels"],
+    "may_act": {
+        "sub": "hotel_agent@example.com"
+    }
+  }
+]
+```
+*Figure 2: authorization_details with the may_act claim*
+
 
 # Security Considerations
 
