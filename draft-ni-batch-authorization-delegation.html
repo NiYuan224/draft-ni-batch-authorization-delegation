@@ -1167,6 +1167,9 @@ svg {
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2.2.2">
                     <p id="section-toc.1-1.3.2.2.2.2.1"><a href="#section-3.2.2" class="auto internal xref">3.2.2</a>.  <a href="#name-processing-rules-of-the-aut" class="internal xref">Processing Rules of the Authorization Server</a></p>
 </li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2.2.3">
+                    <p id="section-toc.1-1.3.2.2.2.3.1"><a href="#section-3.2.3" class="auto internal xref">3.2.3</a>.  <a href="#name-batch-token-issuance" class="internal xref">Batch Token Issuance</a></p>
+</li>
                 </ul>
 </li>
             </ul>
@@ -1219,7 +1222,7 @@ to obtain limited access to protected resources on behalf of a resource owner. H
 </li>
       </ul>
 <p id="section-1-5">In summary, the existing OAuth 2.0 protocal and its extensions lack a mechanism to express, partition, and delegate fine-grained structured permissions across multiple collaborating entities.<a href="#section-1-5" class="pilcrow">¶</a></p>
-<p id="section-1-6">To bridge this gap, this document adds the delegation information directly to the multiple fine-grained permissions in the RAR. By extending the authorization_details with a may_act claim, a client can request a comprehensive set of permissions, each of which specify which actor is authorized to delegate. The Authorization Server (AS) then responds this request with a Batch Token, which contains the above permissions and their corresponding delegation constraints. When an actor performs a token exchange using the Batch Token, the AS applies a downscoping strategy, filtering the permissions based on the consistancy of the may_act claim and actor's identity. This ensures a convenient authorization experience for the user while strictly enforcing the principle of least privilege across multiple collaborating entities.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-6">To bridge this gap, this document adds the delegation information directly to the multiple fine-grained permissions in the RAR. By extending the authorization_details with a may_act claim, a client can request a comprehensive set of permissions, each of which specify which actor is authorized to delegate. The Authorization Server (AS) then responds this request with a batch token, which contains the above permissions and their corresponding delegation constraints. When an actor performs a token exchange using the batch token, the AS applies a downscoping strategy, filtering the permissions based on the consistancy of the may_act claim and actor's identity. This ensures a convenient authorization experience for the user while strictly enforcing the principle of least privilege across multiple collaborating entities.<a href="#section-1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions-and-definitions">
@@ -1230,10 +1233,10 @@ to obtain limited access to protected resources on behalf of a resource owner. H
 <p id="section-2-1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
 <p id="section-2-2">This document uses common OAuth and token processing terms such as "access token", "authorization server" (AS), "resource server" (RS), "authorization request", "access token response" defined by <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, "Trust Domain", "JWT Authorization Grant" defined by <span>[<a href="#I-D.ietf-oauth-identity-chaining" class="cite xref">I-D.ietf-oauth-identity-chaining</a>]</span>, "identity assertion" defined by <span>[<a href="#I-D.ietf-oauth-identity-assertion-authz-grant" class="cite xref">I-D.ietf-oauth-identity-assertion-authz-grant</a>]</span>.<a href="#section-2-2" class="pilcrow">¶</a></p>
 <p id="section-2-3">In addition, the following terms are defined for this document:<a href="#section-2-3" class="pilcrow">¶</a></p>
-<p id="section-2-4">Leader-Client:  The entity responsible for coordinating tasks and requesting permissions in a batch for sub-clients. The leader-client initiates rich authorization requests to the AS, and sends the obtained Batch Tokens to sub-clients. The leader-client includes a master agent, a microservice orchestrator, or an API gateway.<a href="#section-2-4" class="pilcrow">¶</a></p>
-<p id="section-2-5">Sub-Client:  The entity that is subordinate to the leader-client and interacts with Resource Servers (RS) to perform specific sub-tasks. The sub-client exchanges the received Batch Token for Downscoped Token. Sub-clients include sub-agents and microservices.<a href="#section-2-5" class="pilcrow">¶</a></p>
+<p id="section-2-4">Leader-Client:  The entity responsible for coordinating tasks and requesting permissions in a batch for sub-clients. The leader-client initiates rich authorization requests to the AS, and sends the obtained batch tokens to sub-clients. The leader-client includes a master agent, a microservice orchestrator, or an API gateway.<a href="#section-2-4" class="pilcrow">¶</a></p>
+<p id="section-2-5">Sub-Client:  The entity that is subordinate to the leader-client and interacts with Resource Servers (RS) to perform specific sub-tasks. The sub-client exchanges the received batch token for Downscoped Token. Sub-clients include sub-agents and microservices.<a href="#section-2-5" class="pilcrow">¶</a></p>
 <p id="section-2-6">Batch Authorization Delegation: A mechanism proposed in this document that a leader-client requests permissions in a batch and delegates them to its subordinate sub-clients.<a href="#section-2-6" class="pilcrow">¶</a></p>
-<p id="section-2-7">Authorization Item: An authorization item includes a fine-grained description of a permission and its corresponding delegation constraint. Multiple authorization items are expressed with the structure of authorization_details, and included in the rich authorization request and the issued Batch Token.<a href="#section-2-7" class="pilcrow">¶</a></p>
+<p id="section-2-7">Authorization Item: An authorization item includes a fine-grained description of a permission and its corresponding delegation constraint. Multiple authorization items are expressed with the structure of authorization_details, and included in the rich authorization request and the issued batch token.<a href="#section-2-7" class="pilcrow">¶</a></p>
 <p id="section-2-8">Batch Token: A specific JWT access token issued by the AS to the leader-client. It encapsulates multiple authorization items, enabling subsequent delegation.<a href="#section-2-8" class="pilcrow">¶</a></p>
 <p id="section-2-9">Delegation Constraint: The may_act claim within an authorization item that specifies the sub-client authorized to act on that permission.<a href="#section-2-9" class="pilcrow">¶</a></p>
 <p id="section-2-10">Downscoped Token: The access token issued to a sub-client as a result of token exchange, which is to be used at the RS to access protected resources. It contains only the specific subset of authorization items whose delegation constraints match the requesting sub-client's identity.<a href="#section-2-10" class="pilcrow">¶</a></p>
@@ -1245,8 +1248,8 @@ to obtain limited access to protected resources on behalf of a resource owner. H
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-batch-authorization-delegat" class="section-name selfRef">Batch Authorization Delegation</a>
       </h2>
 <p id="section-3-1">This document specifies a mechanism combining OAuth RAR <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span> and Token Exchange <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span> to achieve Batch Authorization Delegation.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">The leader-client sends a rich authorization request with multiple authorization items to the AS. Each authorization item not only describes the required permission but also declares the sub-client to which the permission can be delegated via delegation constraints. Upon user confirmation, the AS issues a Batch Token to the leader-client, which encapsulates the authorization items confirmed by the user. The leader-client distributes the Batch Token to a sub-client.<a href="#section-3-2" class="pilcrow">¶</a></p>
-<p id="section-3-3">The sub-client initiates a token exchange request to the AS. The AS matches the sub-client's identity with the delegation constraints in the Batch Token, and then filters out one or more authorization items corresponding to this specific sub-client. Then the AS generates a downscoped token containing only the permissions from the filtered authorization items.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<p id="section-3-2">The leader-client sends a rich authorization request with multiple authorization items to the AS. Each authorization item not only describes the required permission but also declares the sub-client to which the permission can be delegated via delegation constraints. Upon user confirmation, the AS issues a batch token to the leader-client, which encapsulates the authorization items confirmed by the user. The leader-client distributes the batch token to a sub-client.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-3">The sub-client initiates a token exchange request to the AS. The AS matches the sub-client's identity with the delegation constraints in the batch token, and then filters out one or more authorization items corresponding to this specific sub-client. Then the AS generates a downscoped token containing only the permissions from the filtered authorization items.<a href="#section-3-3" class="pilcrow">¶</a></p>
 <p id="section-3-4">Such a mechanism enables the leader-client to perform a one-time batch authorization as well as to ensure each sub-client obtains an access token containing only the permissions it requires, thereby realizing both efficiency and security.<a href="#section-3-4" class="pilcrow">¶</a></p>
 <div id="overview">
 <section id="section-3.1">
@@ -1293,10 +1296,10 @@ to obtain limited access to protected resources on behalf of a resource owner. H
 <p id="section-3.1-4">(1) The leader-client sends a rich authorization request containing multiple authorization items to the AS. Each authorization item includes a fine-grained permission (described by several claims defined in <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>, e.g., type, action, location, etc.) and a delegation constraint that uses the may_act claim to designate which sub-client is authorized for the permission.<a href="#section-3.1-4" class="pilcrow">¶</a></p>
 <p id="section-3.1-5">(2) After receiving the rich authorization request, the AS presents all authorization items in the request to the user for consent.<a href="#section-3.1-5" class="pilcrow">¶</a></p>
 <p id="section-3.1-6">(3) The user confirms all or some of the authorization items and sends the result back to the AS.<a href="#section-3.1-6" class="pilcrow">¶</a></p>
-<p id="section-3.1-7">(4) The AS generates a Batch Token, which encapsulates the authorization items confirmed by the user and issues it to the leader-client.<a href="#section-3.1-7" class="pilcrow">¶</a></p>
-<p id="section-3.1-8">(5) The leader-client distributes the Batch Token to the sub-client.<a href="#section-3.1-8" class="pilcrow">¶</a></p>
-<p id="section-3.1-9">(6) The sub-client initiates a token exchange request to the AS to exchange the Batch Token to a downscoped token.<a href="#section-3.1-9" class="pilcrow">¶</a></p>
-<p id="section-3.1-10">(7) The AS matches the identity of sub-client to the delegation constraints in the Batch Token to filter the authorization items corresponding to the sub-client.<a href="#section-3.1-10" class="pilcrow">¶</a></p>
+<p id="section-3.1-7">(4) The AS generates a batch token, which encapsulates the authorization items confirmed by the user and issues it to the leader-client.<a href="#section-3.1-7" class="pilcrow">¶</a></p>
+<p id="section-3.1-8">(5) The leader-client distributes the batch token to the sub-client.<a href="#section-3.1-8" class="pilcrow">¶</a></p>
+<p id="section-3.1-9">(6) The sub-client initiates a token exchange request to the AS to exchange the batch token to a downscoped token.<a href="#section-3.1-9" class="pilcrow">¶</a></p>
+<p id="section-3.1-10">(7) The AS matches the identity of sub-client to the delegation constraints in the batch token to filter the authorization items corresponding to the sub-client.<a href="#section-3.1-10" class="pilcrow">¶</a></p>
 <p id="section-3.1-11">(8) The AS generates a downscoped token that only contains the permissions in the filtered authorization items and send it to the sub-client.<a href="#section-3.1-11" class="pilcrow">¶</a></p>
 <p id="section-3.1-12">(9) The sub-client accesses the RS with the downscoped token.<a href="#section-3.1-12" class="pilcrow">¶</a></p>
 </section>
@@ -1374,6 +1377,56 @@ to obtain limited access to protected resources on behalf of a resource owner. H
           </ul>
 </section>
 </div>
+<div id="batch-token-issuance">
+<section id="section-3.2.3">
+          <h4 id="name-batch-token-issuance">
+<a href="#section-3.2.3" class="section-number selfRef">3.2.3. </a><a href="#name-batch-token-issuance" class="section-name selfRef">Batch Token Issuance</a>
+          </h4>
+<p id="section-3.2.3-1">After user consent, the AS issues an authorization code as a grant to the leader-client. The leader-client then exchanges the authorization code for a batch token, following the standard authorization response and token request flow as defined in <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>.<a href="#section-3.2.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.2.3-2">Subsequently,  the AS generates a batch token and returns it to the leader-client in the Token response. The batch token is a JWT access token conforming to <span>[<a href="#RFC9068" class="cite xref">RFC9068</a>]</span>, with the following constraints on its claim values:<a href="#section-3.2.3-2" class="pilcrow">¶</a></p>
+<p id="section-3.2.3-3"><strong>iss</strong>
+            <strong>REQUIRED.</strong> The identifier of the AS.<a href="#section-3.2.3-3" class="pilcrow">¶</a></p>
+<p id="section-3.2.3-4"><strong>sub</strong>
+            <strong>REQUIRED.</strong> The identifier of the user who grants the consent.<a href="#section-3.2.3-4" class="pilcrow">¶</a></p>
+<p id="section-3.2.3-5"><strong>aud</strong>
+            <strong>REQUIRED.</strong> MUST be set to the AS itself, as the batch token is intended only for token exchange at the AS and cannot be directly used at the RS.<a href="#section-3.2.3-5" class="pilcrow">¶</a></p>
+<p id="section-3.2.3-6"><strong>client_id</strong>
+            <strong>REQUIRED.</strong> The identifier of the leader-client that initiated the authorization request.<a href="#section-3.2.3-6" class="pilcrow">¶</a></p>
+<p id="section-3.2.3-7"><strong>authorization_details</strong>
+            <strong>REQUIRED.</strong> An JSON array containing all the consented authorization items, including the permission descriptions and their correspondiing may_act delegation constraints.<a href="#section-3.2.3-7" class="pilcrow">¶</a></p>
+<p id="section-3.2.3-8">Figure 3 shows an example of the batch token JWT payload, which encapsulates all consented authorization items from Figure 2. The sub claim identifies the user who consents, the client_id claim identifies the travel assistant as the leader-client that initiates the request, each may_act.sub field identifies the sub-client authorized to exercise the corresponding permission. The aud claim is set to the AS itself, as the batch token will be presented back to the AS for further token exchange.<a href="#section-3.2.3-8" class="pilcrow">¶</a></p>
+<p id="section-3.2.3-9"><code>text
+{
+  "iss": "https://as.example.com",
+  "sub": "user@example.com",
+  "aud": "https://as.example.com",
+  "client_id": "travel_assistant@example.com",
+  "exp": 1777881600,
+  "iat": 1777795200,
+  "jti": "batch-token-8b4729cc-32e4-4370-8cf0-5796154d1296",
+  "authorization_details": [
+    {
+      "type": "flight_booking",
+      "actions": ["search", "book"],
+      "locations": ["https://example.com/flights"],
+      "may_act": {
+        "sub": "flight_agent@example.com"
+      }
+    },
+    {
+      "type": "hotel_reservation",
+      "actions": ["search", "book"],
+      "locations": ["https://example.com/hotels"],
+      "may_act": {
+        "sub": "hotel_agent@example.com"
+      }
+    }
+  ]
+}
+</code>
+            <em>Figure 3: Batch Token JWT Payload</em><a href="#section-3.2.3-9" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 </section>
@@ -1424,6 +1477,10 @@ to obtain limited access to protected resources on behalf of a resource owner. H
 <dt id="RFC8693">[RFC8693]</dt>
         <dd>
 <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Nadalin, A.</span>, <span class="refAuthor">Campbell, B., Ed.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OAuth 2.0 Token Exchange"</span>, <span class="seriesInfo">RFC 8693</span>, <span class="seriesInfo">DOI 10.17487/RFC8693</span>, <time datetime="2020-01" class="refDate">January 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8693">https://www.rfc-editor.org/rfc/rfc8693</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9068">[RFC9068]</dt>
+        <dd>
+<span class="refAuthor">Bertocci, V.</span>, <span class="refTitle">"JSON Web Token (JWT) Profile for OAuth 2.0 Access Tokens"</span>, <span class="seriesInfo">RFC 9068</span>, <span class="seriesInfo">DOI 10.17487/RFC9068</span>, <time datetime="2021-10" class="refDate">October 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9068">https://www.rfc-editor.org/rfc/rfc9068</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9396">[RFC9396]</dt>
       <dd>
