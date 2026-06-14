@@ -66,11 +66,12 @@ Table of Contents
 
    1.  Introduction
    2.  Conventions and Definitions
-   3.  Security Considerations
-   4.  IANA Considerations
-   5.  References
-     5.1.  Normative References
-     5.2.  Informative References
+   3.  Batch Authorization Delegation
+   4.  Security Considerations
+   5.  IANA Considerations
+   6.  References
+     6.1.  Normative References
+     6.2.  Informative References
    Acknowledgments
    Authors' Addresses
 
@@ -194,17 +195,42 @@ Table of Contents
    items whose delegation constraints match the requesting sub-client's
    identity.
 
-3.  Security Considerations
+3.  Batch Authorization Delegation
+
+   This document specifies a mechanism combining OAuth RAR [RFC9396] and
+   Token Exchange [RFC8693] to achieve Batch Authorization Delegation.
+
+   The leader-client sends a rich authorization request with multiple
+   authorization items to the AS.  Each authorization item not only
+   describes the required permission but also declares the sub-client to
+   which the permission can be delegated via delegation constraints.
+   Upon user confirmation, the AS issues a Batch Token to the leader-
+   client, which encapsulates the authorization items confirmed by the
+   user.  The leader-client distributes the Batch Token to a sub-client.
+
+   The sub-client initiates a token exchange request to the AS.  The AS
+   matches the sub-client's identity with the delegation constraints in
+   the Batch Token, and then filters out one or more authorization items
+   corresponding to this specific sub-client.  Then the AS generates a
+   downscoped token containing only the permissions from the filtered
+   authorization items.
+
+   Such a mechanism enables the leader-client to perform a one-time
+   batch authorization as well as to ensure each sub-client obtains an
+   access token containing only the permissions it requires, thereby
+   realizing both efficiency and security.
+
+4.  Security Considerations
 
    TODO Security
 
-4.  IANA Considerations
+5.  IANA Considerations
 
    This document has no IANA actions.
 
-5.  References
+6.  References
 
-5.1.  Normative References
+6.1.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -234,7 +260,7 @@ Table of Contents
               DOI 10.17487/RFC9396, May 2023,
               <https://www.rfc-editor.org/rfc/rfc9396>.
 
-5.2.  Informative References
+6.2.  Informative References
 
    [I-D.ietf-oauth-identity-assertion-authz-grant]
               Parecki, A., McGuinness, K., and B. Campbell, "Identity
