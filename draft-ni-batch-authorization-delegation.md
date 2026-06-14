@@ -286,11 +286,11 @@ Figure 3 shows an example of the batch token JWT payload, which encapsulates all
 
 When a sub-client receives a batch token from the leader-client, it MUST perform a token exchange request to the AS to obtain a downscoped token. The parameters described in section 2.1 of {{RFC8693}} apply here with the following restrictions:
 
-subject_token
-  REQUIRED. The batch token received from the leader-client.
+**subject_token**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**REQUIRED.** The batch token received from the leader-client.
 
-subject_token_type
-  REQUIRED. urn:ietf:params:oauth:token-type:jwt.
+**subject_token_type**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**REQUIRED.** urn:ietf:params:oauth:token-type:jwt.
 
 
 Since the AS has to identify the requesting sub-client to filter the authorization items, it MUST authenticate the sub-client. The AS MAY use the following authentication methods:
@@ -342,17 +342,17 @@ In addition to authenticating the requesting sub-client, the AS MUST
 
 The AS generates a downscoped token that only contains the permissions in the filtered authorization items. The format of this token is at the discretion of the AS. It MAY be a JWT access token conforming to {{RFC9068}} or any other format. If a JWT downscoped token is used, the following constraints on its claim values apply:
 
-**sub**
-  **REQUIRED.** The owner who grants the consent (copied from the sub claim of the batch token in the subject_token field).
+**sub**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**REQUIRED.** The owner who grants the consent (copied from the sub claim of the batch token in the subject_token field).
 
-**client_id**
-  **REQUIRED.** The authenticated Sub‑Client.
+**client_id**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**REQUIRED.** The authenticated Sub‑Client.
 
-**aud**
-  **OPTIONAL.** The target RS where the sub-client intends to use the downscoped token.
+**aud**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**OPTIONAL.** The target RS where the sub-client intends to use the downscoped token.
 
-**authorization_details**
-  **OPTIONAL.** A JSON array containing the permissions from the filtered authorization items. Since the may_act claim has already been enforced as a delegation constraint by the AS during token exchange, it MAY be omitted in the Downscoped Token.
+**authorization_details**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**OPTIONAL.** A JSON array containing the permissions from the filtered authorization items. Since the may_act claim has already been enforced as a delegation constraint by the AS during token exchange, it MAY be omitted in the Downscoped Token.
 
 Figure 6 shows a downscoped token issued to the Flight-Agent after token exchange. Its sub claim identifies the end‑user who grants the consent, its aud claim points directly to target service (https://example.com/flights), and the client_id identifies the Flight-Agent. The authorization_details array contains only the flight‑booking permission, with the may_act claim removed.
 
@@ -375,6 +375,86 @@ Figure 6 shows a downscoped token issued to the Flight-Agent after token exchang
 }
 ```
 *Figure 6: Downscoped Token Payload*
+
+# Scenarios
+Section 3 defines the basic workflow and the message structures of Batch Authorization Delegation. On this basis, this section gives some detailed scenarios, including intra-domain and cross-domain cases.
+
+## Intra-Domain Batch Authorization Delegation
+In this case, the user, the leader-client, and the sub-clients all reside within the same trust domain managed by a single AS. The workflow and the examples are already given in Section 3 Figure.1-6.
+
+## Batch Authorization Delegation with Cross-Domain sub-clients
+In this case, the user and the leader-client belong to the same trust domain, but sub-clients reside in one or more other trust domains. Each trust domain has its own AS.
+
+### Workflow
+The workflow is a combination of batch authorization delegation and identity chaining {{I-D.ietf-oauth-identity-chaining}}.
+
+
+Since the sub-client and leader-client reside in different trust domains, the leader-client in Domain A cannot directly distribute the batch token to the sub-client in Domain B. Instead, it requests a JWT Authorization Grant (JAG) from the AS in Domain A via token exchange. The AS matches Domain B with the may_act.aud fields in the batch token to filter out one or more authorization items, then generates a JAG including only the Domain B-related authorization items.
+
+The leader-client then presents the received JAG as an assertion to the AS in Domain B to obtain an access token, which is subsequently exchanged by the specific sub-client in Domain B for a final downscoped token. This token exchange ensures that the final downscoped token used by the sub-client only contains the permissions it required.
+
+
+
+~~~
++--------++-------------+   +----------++----------+     +----------++----------+
+|  User  ||Leader-Client|   |    AS    ||    AS    |     |Sub-Client||    RS    |
+|Domain A||   Domain A  |   | Domain A || Domain B |     | Domain B || Domain B |
++---+----++------+------+   +-------+--++-+--------+     +----+-----++---+------+
+    |            |(1)RAR            |     |                   |          |
+    |            |(with may_act)    |     |                   |          |
+    |            +------------------>     |                   |          |
+    |            |(2)Ask for consent|     |                   |          |
+    <------------+------------------+     |                   |          |
+    |(3)Consent  |                  |     |                   |          |
+    +------------+------------------>     |                   |          |
+    |            |(4)Issue          |     |                   |          |
+    |            | Batch Token      |     |                   |          |
+    |            <------------------+     |                   |          |
+    |            |(a)Token exchange |     |                   |          |
+    |            |   Request        |     |                   |          |
+    |            +------------------>     |                   |          |
+    |            |(b)Match domain   |     |                   |          |
+    |            |   &Downscope  +--+     |                   |          |
+    |            |               |  |     |                   |          |
+    |            |               +-->     |                   |          |
+    |            |(c)JAG            |     |                   |          |
+    |            <------------------+     |                   |          |
+    |            |(d)JAG            |     |                   |          |
+    |            +------------------+----->                   |          |
+    |            |(e)Access Token   |     |                   |          |
+    |            <------------------+-----+                   |          |
+    |            |(f)Access Token   |     |                   |          |
+    |            +------------------+-----+------------------->          |
+    |            |                  |     |(6)Token exchange  |          |
+    |            |                  |     |   Request         |          |
+    |            |                  |     <-------------------+          |
+    |            |                  |     |(7)Match identity  |          |
+    |            |                  |     +-+ &Downscope      |          |
+    |            |                  |     | |                 |          |
+    |            |                  |     <-+                 |          |
+    |            |                  |     |(8)Downscoped Token|          |
+    |            |                  |     +------------------->          |
+    |            |                  |     |                   |(9)access |
+    |            |                  |     |                   +---------->
+    |            |                  |     |                   |          |
+~~~
+*Figure 7: Batch Authorization Delegation with Cross-Domain Sub-Clients*
+
+Steps (1)-(4) are the same as in Figure 1.
+
+(a) The leader-client in Domain A exchanges the batch token with the AS in Domain A for a JAG that can be used in the AS in Domain B.
+
+(b) The AS of Domain A inspects the may_act.aud fields within the batch token, filters the authorization items down to those matching Domain B.
+
+(c) The AS of Domain A issues the JAG including the filtered authorization items. Since the may_act.aud fields have already been used for the domain-level filtering, and the top‑level aud claim of the JAG already identifies the target AS of domain B, the may_act.aud claim MAY be omitted from the issued JAG.  This step requires trust relationship between the ASs in Domain A and Domain B.  See Section 2.1 of {{I-D.ietf-oauth-identity-chaining}} for the trust relationship establishment.
+
+(d) The leader-client in Domain A presents the JAG as an assertion to the AS of Domain B.
+
+(e) The AS of Domain B validates the JAG, extracts and encapsulates the filtered authorization items in an access token and sends it to the leader-client. This access token itself constitutes a Domain B-specific batch token, whose authorization items are a subset of those in the original batch token issued in step (4).
+
+(f) The leader-client sends the access token to the sub-client.
+
+Steps (6)-(9) are the same as in Figure 1.
 
 # Security Considerations
 
