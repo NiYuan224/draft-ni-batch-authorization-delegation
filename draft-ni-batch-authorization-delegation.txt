@@ -67,6 +67,7 @@ Table of Contents
    1.  Introduction
    2.  Conventions and Definitions
    3.  Batch Authorization Delegation
+     3.1.  Overview
    4.  Security Considerations
    5.  IANA Considerations
    6.  References
@@ -219,6 +220,78 @@ Table of Contents
    batch authorization as well as to ensure each sub-client obtains an
    access token containing only the permissions it requires, thereby
    realizing both efficiency and security.
+
+3.1.  Overview
+
+   Figure 1 shows the flow of Batch Authorization Delegation.  Note that
+   a leader-client MAY coordinate several Sub-clients.  For simplicity,
+   only one Sub-client is shown in Figure 1.
+
+   +----++-------------+    +----+        +----------++----+
+   |User||Leader-Client|    | AS |        |Sub-Client|| RS |
+   +-+--++------+------+    +--+-+        +--------+-++--+-+
+     |          |(1)RAR        |                   |     |
+     |          |(with may_act)|                   |     |
+     |          +-------------->                   |     |
+     |          |(2)Ask for    |                   |     |
+     |          | consent      |                   |     |
+     <----------+--------------+                   |     |
+     |(3)Consent|              |                   |     |
+     +----------+-------------->                   |     |
+     |          |(4)Issue      |                   |     |
+     |          | Batch Token  |                   |     |
+     |          <--------------+                   |     |
+     |          |(5)Distribute |                   |     |
+     |          | Batch Token  |                   |     |
+     |          +--------------+------------------->     |
+     |          |              |(6)Token exchange  |     |
+     |          |              |   Request         |     |
+     |          |              <-------------------+     |
+     |          |              | [Batch Token]     |     |
+     |          |              |                   |     |
+     |          |              |(7)Match identity  |     |
+     |          |              +-+ &Downscope      |     |
+     |          |              | |                 |     |
+     |          |              <-+                 |     |
+     |          |              |(8)Downscoped Token|     |
+     |          |              +------------------->     |
+     |          |              |(9)access          |     |
+     |          |              +-------------------+----->
+     |          |              |                   |     |
+
+   _Figure 1: Batch Authorization Delegation Flow_
+
+   (1) The leader-client sends a rich authorization request containing
+   multiple authorization items to the AS.  Each authorization item
+   includes a fine-grained permission (described by several claims
+   defined in [RFC9396], e.g., type, action, location, etc.) and a
+   delegation constraint that uses the may_act claim to designate which
+   sub-client is authorized for the permission.
+
+   (2) After receiving the rich authorization request, the AS presents
+   all authorization items in the request to the user for consent.
+
+   (3) The user confirms all or some of the authorization items and
+   sends the result back to the AS.
+
+   (4) The AS generates a Batch Token, which encapsulates the
+   authorization items confirmed by the user and issues it to the
+   leader-client.
+
+   (5) The leader-client distributes the Batch Token to the sub-client.
+
+   (6) The sub-client initiates a token exchange request to the AS to
+   exchange the Batch Token to a downscoped token.
+
+   (7) The AS matches the identity of sub-client to the delegation
+   constraints in the Batch Token to filter the authorization items
+   corresponding to the sub-client.
+
+   (8) The AS generates a downscoped token that only contains the
+   permissions in the filtered authorization items and send it to the
+   sub-client.
+
+   (9) The sub-client accesses the RS with the downscoped token.
 
 4.  Security Considerations
 
