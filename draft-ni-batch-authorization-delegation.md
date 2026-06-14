@@ -40,6 +40,7 @@ normative:
   RFC9396:
   RFC8693:
   RFC7523:
+  RFC9068:
 
 informative:
   I-D.ietf-oauth-identity-chaining:
