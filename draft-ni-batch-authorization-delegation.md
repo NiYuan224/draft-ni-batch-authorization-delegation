@@ -176,7 +176,7 @@ In {{RFC8693}}, the may_act is a top-level claim, which makes a statement of one
 In contrast, this document leverages authorization_details defined in {{RFC9396}} to describe multiple authorization items, each of which contains a permission and a nested may_act claim serving as a delegation constraint. This helps to define who is authorized to perform which permission, thus changing the entity-level delegation into a item-level delegation.
 
 **may_act**
-: **REQUIRED.** A JSON object that identifies the specific sub-client authorized to exercise the permission.
+ **REQUIRED.** A JSON object that identifies the specific sub-client authorized to exercise the permission.
 
 The may_act JSON object contains fields that specify the intended actor for a particular authorization item. This document defines the following two fields:
 
