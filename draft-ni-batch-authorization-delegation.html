@@ -1211,6 +1211,9 @@ svg {
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.1">
                     <p id="section-toc.1-1.4.2.3.2.1.1"><a href="#section-4.3.1" class="auto internal xref">4.3.1</a>.  <a href="#name-workflow-2" class="internal xref">Workflow</a></p>
 </li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.2">
+                    <p id="section-toc.1-1.4.2.3.2.2.1"><a href="#section-4.3.2" class="auto internal xref">4.3.2</a>.  <a href="#name-key-messages-2" class="internal xref">Key Messages</a></p>
+</li>
                 </ul>
 </li>
             </ul>
@@ -1870,6 +1873,67 @@ to obtain limited access to protected resources on behalf of a resource owner. H
 <p id="section-4.3.1-13">(h) The leader-client orchestrates the task and assigns different permissions to different sub-clients. It then initiates a token exchange request to Domain A's AS. This request includes the authorization_details parameter, which contains the original content of authorization_details from step (c) along with the may_act claims as delegation constraints.<a href="#section-4.3.1-13" class="pilcrow">¶</a></p>
 <p id="section-4.3.1-14">(5) Domain A's AS compares the authorization_details in the request with the original ones, verifies that the leader-client has only added delegation constraints without altering the original permissions, and then issues a batch token.<a href="#section-4.3.1-14" class="pilcrow">¶</a></p>
 <p id="section-4.3.1-15">Steps (6)-(9) are the same as in Figure 1.<a href="#section-4.3.1-15" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="key-messages-1">
+<section id="section-4.3.2">
+          <h4 id="name-key-messages-2">
+<a href="#section-4.3.2" class="section-number selfRef">4.3.2. </a><a href="#name-key-messages-2" class="section-name selfRef">Key Messages</a>
+          </h4>
+<p id="section-4.3.2-1">The following shows the examples of key tokens and messages in the workflow of Figure 11. The steps and messages of token exchange request and response for ID-JAG follow Section 4.3.4.2 in <span>[<a href="#I-D.ietf-oauth-identity-assertion-authz-grant" class="cite xref">I-D.ietf-oauth-identity-assertion-authz-grant</a>]</span> and are not repeated in this section.<a href="#section-4.3.2-1" class="pilcrow">¶</a></p>
+<div id="access-token-1">
+<section id="section-4.3.2.1">
+            <h5 id="name-access-token-2">
+<a href="#section-4.3.2.1" class="section-number selfRef">4.3.2.1. </a><a href="#name-access-token-2" class="section-name selfRef">Access Token</a>
+            </h5>
+<p id="section-4.3.2.1-1">This access token is issued by Domain A's AS to the user's client in step (f) and then delivered to the leader‑client in step (g). It carries the original permissions without any delegation constraints.<a href="#section-4.3.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.3.2.1-2"><code>text
+{
+  "iss": "https://as.domain_a.example",
+  "sub": "user@domain_u.example",
+  "aud": "https://as.domain_a.example",
+  "client_id": "user_client@domain_u.example",
+  "exp": 1777881600,
+  "iat": 1777795100,
+  "jti": "init-9a4f2b1c-3d7e-4a2b-8c6d-1e5f9a7b3c2d",
+  "authorization_details": [
+    {
+      "type": "flight_booking",
+      "actions": ["search", "book"],
+      "locations": ["https://domain_a.example.com/flights"]
+    },
+    {
+      "type": "hotel_reservation",
+      "actions": ["search", "book"],
+      "locations": ["https://domain_a.example.com/hotels"]
+    }
+  ]
+}
+</code>
+              <em>Figure 12: Access Token Payload</em><a href="#section-4.3.2.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="token-exchange-request-for-the-batch-token">
+<section id="section-4.3.2.2">
+            <h5 id="name-token-exchange-request-for-">
+<a href="#section-4.3.2.2" class="section-number selfRef">4.3.2.2. </a><a href="#name-token-exchange-request-for-" class="section-name selfRef">Token Exchange Request for the Batch Token</a>
+            </h5>
+<p id="section-4.3.2.2-1">The leader‑client sends a token exchange request to Domain A's AS, appending the nested may_act claims to the original authorization_details.<a href="#section-4.3.2.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.3.2.2-2">```text
+POST /token HTTP/1.1
+Host: as.domain_a.example
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic bGVhZGVyLWNsaWVudDpzZWNyZXQ=<a href="#section-4.3.2.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.3.2.2-3">grant_type=urn:ietf:params:oauth:grant-type:token-exchange
+&amp;subject_token=[Encoded access token]
+&amp;subject_token_type=urn:ietf:params:oauth:token-type:access_token
+&amp;authorization_details=[{"type":"flight_booking","actions":["search","book"],"locations":["https://domain_a.example.com/flights"],"may_act":{"sub":"flight_agent@domain_a.example.com"}},{"type":"hotel_reservation","actions":["search","book"],"locations":["https://domain_a.example.com/hotels"],"may_act":{"sub":"hotel_agent@domain_a.example.com"}}]
+```
+<em>Figure 13: Token Exchange Request for Batch Token</em><a href="#section-4.3.2.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.3.2.2-4">The AS verifies that the leader‑client has soley appended delegation constraints without modifying the original permissions, and then issues a batch token as shown in Figure 3. The subsequent steps, including distribution of the batch token to sub‑clients, token exchange initiated by each sub‑client, and issuance of downscoped tokens as shown in Figure 6, are identical to the intra‑domain flow.<a href="#section-4.3.2.2-4" class="pilcrow">¶</a></p>
+<p id="section-4.3.2.2-5">The handling of verification failures (e.g., rejection or re‑consent) is implementation‑specific and out of scope for this specification.<a href="#section-4.3.2.2-5" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 </section>
