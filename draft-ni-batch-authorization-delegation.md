@@ -654,6 +654,60 @@ The remaining steps are the same as the intra‑domain batch authorization deleg
 
 Steps (6)-(9) are the same as in Figure 1.
 
+### Key Messages
+The following shows the examples of key tokens and messages in the workflow of Figure 11. The steps and messages of token exchange request and response for ID-JAG follow Section 4.3.4.2 in {{I-D. ietf-oauth-identity-assertion-authz-grant}} and are not repeated in this section.
+
+#### Access Token
+This access token is issued by Domain A's AS to the user's client in step (f) and then delivered to the leader‑client in step (g). It carries the original permissions without any delegation constraints.
+
+```text
+{
+  "iss": "https://as.domain_a.example",
+  "sub": "user@domain_u.example",
+  "aud": "https://as.domain_a.example",
+  "client_id": "user_client@domain_u.example",
+  "exp": 1777881600,
+  "iat": 1777795100,
+  "jti": "init-9a4f2b1c-3d7e-4a2b-8c6d-1e5f9a7b3c2d",
+  "authorization_details": [
+    {
+      "type": "flight_booking",
+      "actions": ["search", "book"],
+      "locations": ["https://domain_a.example.com/flights"]
+    },
+    {
+      "type": "hotel_reservation",
+      "actions": ["search", "book"],
+      "locations": ["https://domain_a.example.com/hotels"]
+    }
+  ]
+}
+```
+*Figure 12: Access Token Payload*
+
+
+#### Token Exchange Request for the Batch Token
+The leader‑client sends a token exchange request to Domain A's AS, appending the nested may_act claims to the original authorization_details.
+
+```text
+POST /token HTTP/1.1
+Host: as.domain_a.example
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic bGVhZGVyLWNsaWVudDpzZWNyZXQ=
+
+grant_type=urn:ietf:params:oauth:grant-type:token-exchange
+&subject_token=[Encoded access token]
+&subject_token_type=urn:ietf:params:oauth:token-type:access_token
+&authorization_details=[{"type":"flight_booking","actions":["search","book"],"locations":["https://domain_a.example.com/flights"],"may_act":{"sub":"flight_agent@domain_a.example.com"}},{"type":"hotel_reservation","actions":["search","book"],"locations":["https://domain_a.example.com/hotels"],"may_act":{"sub":"hotel_agent@domain_a.example.com"}}]
+```
+*Figure 13: Token Exchange Request for Batch Token*
+
+
+The AS verifies that the leader‑client has soley appended delegation constraints without modifying the original permissions, and then issues a batch token as shown in Figure 3. The subsequent steps, including distribution of the batch token to sub‑clients, token exchange initiated by each sub‑client, and issuance of downscoped tokens as shown in Figure 6, are identical to the intra‑domain flow.
+
+The handling of verification failures (e.g., rejection or re‑consent) is implementation‑specific and out of scope for this specification.
+
+
 # Security Considerations
 
 TODO Security
