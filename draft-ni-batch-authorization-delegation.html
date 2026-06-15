@@ -1050,7 +1050,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Ni &amp; Liu</td>
-<td class="center">Expires 16 December 2026</td>
+<td class="center">Expires 17 December 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1063,12 +1063,12 @@ svg {
 <dd class="internet-draft">draft-ni-batch-authorization-delegation-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-06-14" class="published">14 June 2026</time>
+<time datetime="2026-06-15" class="published">15 June 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-12-16">16 December 2026</time></dd>
+<dd class="expires"><time datetime="2026-12-17">17 December 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1117,7 +1117,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 16 December 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 17 December 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1202,6 +1202,14 @@ svg {
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2.2.2">
                     <p id="section-toc.1-1.4.2.2.2.2.1"><a href="#section-4.2.2" class="auto internal xref">4.2.2</a>.  <a href="#name-key-messages" class="internal xref">Key Messages</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-batch-authorization-delegatio" class="internal xref">Batch Authorization Delegation with the Cross-Domain User</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.1">
+                    <p id="section-toc.1-1.4.2.3.2.1.1"><a href="#section-4.3.1" class="auto internal xref">4.3.1</a>.  <a href="#name-workflow-2" class="internal xref">Workflow</a></p>
 </li>
                 </ul>
 </li>
@@ -1790,6 +1798,78 @@ to obtain limited access to protected resources on behalf of a resource owner. H
               <em>Figure 11: Downscoped Token Payload</em><a href="#section-4.2.2.4-3" class="pilcrow">¶</a></p>
 </section>
 </div>
+</section>
+</div>
+</section>
+</div>
+<div id="batch-authorization-delegation-with-the-cross-domain-user">
+<section id="section-4.3">
+        <h3 id="name-batch-authorization-delegatio">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-batch-authorization-delegatio" class="section-name selfRef">Batch Authorization Delegation with the Cross-Domain User</a>
+        </h3>
+<p id="section-4.3-1">In this case, the leader-client and sub-clients belong to the same trust domain, while the user resides in another trust domain. Each trust domain has its own AS.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<div id="workflow-1">
+<section id="section-4.3.1">
+          <h4 id="name-workflow-2">
+<a href="#section-4.3.1" class="section-number selfRef">4.3.1. </a><a href="#name-workflow-2" class="section-name selfRef">Workflow</a>
+          </h4>
+<p id="section-4.3.1-1">The workflow is a combination of batch authorization delegation and identity assertion <span>[<a href="#I-D.ietf-oauth-identity-assertion-authz-grant" class="cite xref">I-D.ietf-oauth-identity-assertion-authz-grant</a>]</span>.<a href="#section-4.3.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-2">The user's client obtains an Identity Assertion from the IdP of Domain U. This ID Token is exchanged for an Identity Assertion JWT Authorization Grant (ID‑JAG) with authorization_details that contains several permissions from Domain U's IdP. The user’s client then directly exchanges this ID‑JAG for an access token from Domain A's AS. This access token is securely delivered to the leader‑client in Domain A.<a href="#section-4.3.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-3">The leader‑client uses this access token to make a token exchange request to the AS of Domain A, including an authorization_details parameter that carries may_act delegation constraints. The AS verifies that the leader‑client has only added delegation constraints without altering the original permissions, and then issues a batch token.<a href="#section-4.3.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-4">The remaining steps are the same as the intra‑domain batch authorization delegation flow: the leader‑client distributes the batch token to sub‑clients; each sub‑client performs a token exchange to obtain a downscoped token containing only its own permissions and uses the downscoped token to access the RS.
+~~~
++--------+         +--------++--------++-------------+ +----------+ +--------+
+|User’s  |         |  IdP   ||   AS   ||Leader Client| |Sub-Client| |   RS   |
+|client  |         |Domain U||Domain A||   Domain A  | | Domain A | |Domain A|
+|Domain U|         |        ||        ||             | |          | |        |
++-+------+         +-----+--+++-------++-------+-----+ +-----+----+ +--+-----+
+  |(a)User SSO           |    |                |             |         |
+  +----------------------&gt;    |                |             |         |
+  |(b)Identity Assertion |    |                |             |         |
+  &lt;----------------------+    |                |             |         |
+  |(c)Token Exchange     |    |                |             |         |
+  | Request              |    |                |             |         |
+  +----------------------&gt;    |                |             |         |
+  |[Identity Assertion]  |    |                |             |         |
+  |(d)ID-JAG (with       |    |                |             |         |
+  | authorization_details|    |                |             |         |
+  &lt;----------------------+    |                |             |         |
+  |(e)Present ID-JAG     |    |                |             |         |
+  +----------------------+----&gt;                |             |         |
+  |(f)Access Token       |    |                |             |         |
+  &lt;----------------------+----+                |             |         |
+  |(g)Access Token       |    |                |             |         |
+  +----------------------+----+----------------&gt;             |         |
+  |                      |    |(h)Token Exchange             |         |
+  |                      |    | Request        |             |         |
+  |                      |    &lt;----------------+             |         |
+  |                      |    |(4)Issue        |             |         |
+  |                      |    | Batch Token    |             |         |
+  |                      |    +----------------&gt;(5)Distribute|         |
+  |                      |    |                | Batch Token |         |
+  |                      |    |                +-------------&gt;         |
+  |                      |    |(6)Token exchange Request     |         |
+  |                      |    &lt;----------------+-------------+         |
+  |                      |    +-+              |             |         |
+  |                      |    | |(7)Match identity&amp;Downscope |         |
+  |                      |    &lt;-+              |             |         |
+  |                      |    |(8)Downscoped Token           |         |
+  |                      |    +----------------+-------------&gt;         |
+  |                      |    |                |             |(9)Access|
+  |                      |    |                |             +---------&gt;
+  |                      |    |                |             |         |<a href="#section-4.3.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-5">~~~
+  <em>Figure 11: Batch Authorization Delegation with the Cross-Domain User</em><a href="#section-4.3.1-5" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-6">(a) The user authenticates with the IdP Server.<a href="#section-4.3.1-6" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-7">(b) The user's client obtains an Identity Assertion from the IdP.<a href="#section-4.3.1-7" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-8">(c) The user's client requests an ID-JAG from Domain U's IdP, with authorization_details intended for use at Domain A's AS. This step requires a trust relationship between the IdP in Domain U and the AS in Domain A.<a href="#section-4.3.1-8" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-9">(d) Domain U's IdP issues an ID-JAG to the user's client.<a href="#section-4.3.1-9" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-10">(e) The user's client presents the ID-JAG as an assertion to Domain A's AS.<a href="#section-4.3.1-10" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-11">(f) Domain A's AS issues an access token to the user's client.<a href="#section-4.3.1-11" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-12">(g) The user's client sends a request to the leader-client, including the access token.<a href="#section-4.3.1-12" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-13">(h) The leader-client orchestrates the task and assigns different permissions to different sub-clients. It then initiates a token exchange request to Domain A's AS. This request includes the authorization_details parameter, which contains the original content of authorization_details from step (c) along with the may_act claims as delegation constraints.<a href="#section-4.3.1-13" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-14">(5) Domain A's AS compares the authorization_details in the request with the original ones, verifies that the leader-client has only added delegation constraints without altering the original permissions, and then issues a batch token.<a href="#section-4.3.1-14" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-15">Steps (6)-(9) are the same as in Figure 1.<a href="#section-4.3.1-15" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
