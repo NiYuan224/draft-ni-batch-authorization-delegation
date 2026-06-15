@@ -85,6 +85,7 @@ Table of Contents
      4.3.  Batch Authorization Delegation with the Cross-Domain User
        4.3.1.  Workflow
        4.3.2.  Key Messages
+     4.4.  Combined Cross-Domain Scenario
    5.  Security Considerations
    6.  IANA Considerations
    7.  References
@@ -891,6 +892,13 @@ Table of Contents
 
    The handling of verification failures (e.g., rejection or re-consent)
    is implementation-specific and out of scope for this specification.
+
+4.4.  Combined Cross-Domain Scenario
+
+   In some deployments, the user, the leader-client, and the sub-clients
+   may each reside in different trust domains.  A combination of the
+   workflows defined in Sections 4.2 and 4.3 directly supports this
+   scenario.  Therefore, the detailed flow is omitted here for brevity.
 
 5.  Security Considerations
 
