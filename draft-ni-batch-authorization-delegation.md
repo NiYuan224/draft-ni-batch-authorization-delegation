@@ -578,6 +578,81 @@ When the benefit_agent exchanges the access token, Bank_A's AS matches its authe
 ```
 *Figure 11: Downscoped Token Payload*
 
+## Batch Authorization Delegation with the Cross-Domain User
+In this case, the leader-client and sub-clients belong to the same trust domain, while the user resides in another trust domain. Each trust domain has its own AS.
+
+### Workflow
+The workflow is a combination of batch authorization delegation and identity assertion {{I-D.ietf-oauth-identity-assertion-authz-grant}}.
+
+The user's client obtains an Identity Assertion from the IdP of Domain U. This ID Token is exchanged for an Identity Assertion JWT Authorization Grant (ID‑JAG) with authorization_details that contains several permissions from Domain U's IdP. The user’s client then directly exchanges this ID‑JAG for an access token from Domain A's AS. This access token is securely delivered to the leader‑client in Domain A.
+
+The leader‑client uses this access token to make a token exchange request to the AS of Domain A, including an authorization_details parameter that carries may_act delegation constraints. The AS verifies that the leader‑client has only added delegation constraints without altering the original permissions, and then issues a batch token.
+
+The remaining steps are the same as the intra‑domain batch authorization delegation flow: the leader‑client distributes the batch token to sub‑clients; each sub‑client performs a token exchange to obtain a downscoped token containing only its own permissions and uses the downscoped token to access the RS.
+~~~
++--------+         +--------++--------++-------------+ +----------+ +--------+
+|User’s  |         |  IdP   ||   AS   ||Leader Client| |Sub-Client| |   RS   |
+|client  |         |Domain U||Domain A||   Domain A  | | Domain A | |Domain A|
+|Domain U|         |        ||        ||             | |          | |        |
++-+------+         +-----+--+++-------++-------+-----+ +-----+----+ +--+-----+
+  |(a)User SSO           |    |                |             |         |
+  +---------------------->    |                |             |         |
+  |(b)Identity Assertion |    |                |             |         |
+  <----------------------+    |                |             |         |
+  |(c)Token Exchange     |    |                |             |         |
+  | Request              |    |                |             |         |
+  +---------------------->    |                |             |         |
+  |[Identity Assertion]  |    |                |             |         |
+  |(d)ID-JAG (with       |    |                |             |         |
+  | authorization_details|    |                |             |         |
+  <----------------------+    |                |             |         |
+  |(e)Present ID-JAG     |    |                |             |         |
+  +----------------------+---->                |             |         |
+  |(f)Access Token       |    |                |             |         |
+  <----------------------+----+                |             |         |
+  |(g)Access Token       |    |                |             |         |
+  +----------------------+----+---------------->             |         |
+  |                      |    |(h)Token Exchange             |         |
+  |                      |    | Request        |             |         |
+  |                      |    <----------------+             |         |
+  |                      |    |(4)Issue        |             |         |
+  |                      |    | Batch Token    |             |         |
+  |                      |    +---------------->(5)Distribute|         |
+  |                      |    |                | Batch Token |         |
+  |                      |    |                +------------->         |
+  |                      |    |(6)Token exchange Request     |         |
+  |                      |    <----------------+-------------+         |
+  |                      |    +-+              |             |         |
+  |                      |    | |(7)Match identity&Downscope |         |
+  |                      |    <-+              |             |         |
+  |                      |    |(8)Downscoped Token           |         |
+  |                      |    +----------------+------------->         |
+  |                      |    |                |             |(9)Access|
+  |                      |    |                |             +--------->
+  |                      |    |                |             |         |
+
+  ~~~
+  *Figure 11: Batch Authorization Delegation with the Cross-Domain User*
+
+(a) The user authenticates with the IdP Server.
+
+(b) The user's client obtains an Identity Assertion from the IdP.
+
+(c) The user's client requests an ID-JAG from Domain U's IdP, with authorization_details intended for use at Domain A's AS. This step requires a trust relationship between the IdP in Domain U and the AS in Domain A.
+
+(d) Domain U's IdP issues an ID-JAG to the user's client.
+
+(e) The user's client presents the ID-JAG as an assertion to Domain A's AS.
+
+(f) Domain A's AS issues an access token to the user's client.
+
+(g) The user's client sends a request to the leader-client, including the access token.
+
+(h) The leader-client orchestrates the task and assigns different permissions to different sub-clients. It then initiates a token exchange request to Domain A's AS. This request includes the authorization_details parameter, which contains the original content of authorization_details from step (c) along with the may_act claims as delegation constraints.
+
+(5) Domain A's AS compares the authorization_details in the request with the original ones, verifies that the leader-client has only added delegation constraints without altering the original permissions, and then issues a batch token.
+
+Steps (6)-(9) are the same as in Figure 1.
 
 # Security Considerations
 
