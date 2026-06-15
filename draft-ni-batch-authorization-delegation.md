@@ -655,7 +655,7 @@ The remaining steps are the same as the intra‑domain batch authorization deleg
 Steps (6)-(9) are the same as in Figure 1.
 
 ### Key Messages
-The following shows the examples of key tokens and messages in the workflow of Figure 11. The steps and messages of token exchange request and response for ID-JAG follow Section 4.3.4.2 in {{I-D. ietf-oauth-identity-assertion-authz-grant}} and are not repeated in this section.
+The following shows the examples of key tokens and messages in the workflow of Figure 11. The steps and messages of token exchange request and response for ID-JAG follow Section 4.3.4.2 in {{I-D.ietf-oauth-identity-assertion-authz-grant}} and are not repeated in this section.
 
 #### Access Token
 This access token is issued by Domain A's AS to the user's client in step (f) and then delivered to the leader‑client in step (g). It carries the original permissions without any delegation constraints.
