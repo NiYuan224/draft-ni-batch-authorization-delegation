@@ -707,6 +707,10 @@ The AS verifies that the leader‑client has soley appended delegation constrain
 
 The handling of verification failures (e.g., rejection or re‑consent) is implementation‑specific and out of scope for this specification.
 
+## Combined Cross‑Domain Scenario
+
+In some deployments, the user, the leader‑client, and the sub‑clients may each reside in different trust domains. A combination of the workflows defined in Sections 4.2 and 4.3 directly supports this scenario. Therefore, the detailed flow is omitted here for brevity.
+
 
 # Security Considerations
 
