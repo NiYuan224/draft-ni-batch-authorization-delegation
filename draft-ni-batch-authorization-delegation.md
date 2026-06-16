@@ -313,7 +313,10 @@ Figure 4 shows a token exchange request initiated by the Flight-Agent. In this r
  grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange
  &subject_token=[Encoded batch token]
  &subject_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
- &actor_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovL2FzLmV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9vcmlnaW5hbC1pc3N1ZXIuZXhhbXBsZS5uZXQiLCJleHAiOjE3Nzg0MDAwMDAsInN1YiI6ImZsaWdodF9hZ2VudEBleGFtcGxlLm5ldCJ9.lcg7QKoGrsD_TICwHJnb0_Fsd5FlocXXXQhjYi2-hC4
+ &actor_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwc \
+ zovL2FzLmV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9vcmlnaW5hbC1pc3N1ZXIu \
+ ZXhhbXBsZS5uZXQiLCJleHAiOjE3Nzg0MDAwMDAsInN1YiI6ImZsaWdodF9hZ2VudEB \
+ leGFtcGxlLm5ldCJ9.lcg7QKoGrsD_TICwHJnb0_Fsd5FlocXXXQhjYi2-hC4
  &actor_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
  ```
 *Figure 4: Token Exchange Request*
