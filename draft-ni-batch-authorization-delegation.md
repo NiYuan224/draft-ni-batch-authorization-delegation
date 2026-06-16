@@ -53,14 +53,14 @@ informative:
 
 --- abstract
 
-This document describes a mechanism for batch authorization delegation, which enables a batch of fine‑grained, actor‑bound permissions in a single request and securely allocates them to multiple collaborating actors.
+This document describes a mechanism for batch authorization delegation, which enables a batch of fine‑grained, actor‑bound permissions in a single request and securely delegates them to multiple collaborating actors.
 
 
 --- middle
 
 # Introduction
 
-Due to the rise of collaboration service ecosystems and AI Agents, resource access patterns are shifting from a traditional, single client-server model to complex multi-entity orchestration. For example, a network operation and management agent may coordinate specialized sub-agents, such as information collection, situation analysis, assisted decision-making sub-agents; a miscroservice architecture may include an orchestrator that manages a group of back-end services. Under these scenarios, a single user intent often requires the orchestration and collaboration of multiple entities.
+Due to the rise of collaboration service ecosystems and AI Agents, resource access patterns are shifting from a traditional, single client-server model to complex multi-entity orchestration. For example, a network operation and management agent may coordinate specialized sub-agents, such as information collection, situation analysis, assisted decision-making sub-agents; a microservice architecture may include an orchestrator that manages a group of back-end services. Under these scenarios, a single user intent often requires the orchestration and collaboration of multiple entities.
 
 While a single, batch authorization with a comprehensive set of permissions can minimize user interaction and improve experience, it risks granting excessive privileges to entities that only need a subset of permissions for their specific subtasks. Therefore, a critical challenge arises in multi-entity orchestration. The core issue is how to request and authorize permissions in a single batch, while securely delegating fine-grained privileges to ensure each entity obtains only the minimum permissions required for its sub-task, thereby balancing efficiency and security.
 
