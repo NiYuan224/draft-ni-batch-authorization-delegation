@@ -1514,9 +1514,9 @@ to obtain limited access to protected resources on behalf of a resource owner. H
 <p id="section-3.3.1-8">grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange
  &amp;subject_token=[Encoded batch token]
  &amp;subject_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
- &amp;actor_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwc \
- zovL2FzLmV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9vcmlnaW5hbC1pc3N1ZXIu \
- ZXhhbXBsZS5uZXQiLCJleHAiOjE3Nzg0MDAwMDAsInN1YiI6ImZsaWdodF9hZ2VudEB \
+ &amp;actor_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwc
+ zovL2FzLmV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9vcmlnaW5hbC1pc3N1ZXIu
+ ZXhhbXBsZS5uZXQiLCJleHAiOjE3Nzg0MDAwMDAsInN1YiI6ImZsaWdodF9hZ2VudEB
  leGFtcGxlLm5ldCJ9.lcg7QKoGrsD_TICwHJnb0_Fsd5FlocXXXQhjYi2-hC4
  &amp;actor_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
  ```
@@ -1616,9 +1616,7 @@ to obtain limited access to protected resources on behalf of a resource owner. H
 <p id="section-4.2.1-1">The workflow is a combination of batch authorization delegation and identity chaining <span>[<a href="#I-D.ietf-oauth-identity-chaining" class="cite xref">I-D.ietf-oauth-identity-chaining</a>]</span>.<a href="#section-4.2.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.2.1-2">Since the sub-client and leader-client reside in different trust domains, the leader-client in Domain A requests a JWT Authorization Grant (JAG) from the AS in Domain A via token exchange. The AS matches Domain B with the may_act.aud fields in the batch token to filter out one or more authorization items, then generates a JAG including only the Domain B-related authorization items.<a href="#section-4.2.1-2" class="pilcrow">¶</a></p>
 <p id="section-4.2.1-3">The leader-client then presents the received JAG as an assertion to the AS in Domain B to obtain an access token, which is subsequently exchanged by the specific sub-client in Domain B for a final downscoped token. This token exchange ensures that the final downscoped token used by the sub-client only contains the permissions it required.<a href="#section-4.2.1-3" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.2.1-4">
-<pre>
-+--------++-------------+   +----------++----------+     +----------++----------+
+<p id="section-4.2.1-4">+--------++-------------+   +----------++----------+     +----------++----------+
 |  User  ||Leader-Client|   |    AS    ||    AS    |     |Sub-Client||    RS    |
 |Domain A||   Domain A  |   | Domain A || Domain B |     | Domain B || Domain B |
 +---+----++------+------+   +-------+--++-+--------+     +----+-----++---+------+
@@ -1659,17 +1657,16 @@ to obtain limited access to protected resources on behalf of a resource owner. H
     |            |                  |     |                   |(9)access |
     |            |                  |     |                   +----------&gt;
     |            |                  |     |                   |          |
-</pre><a href="#section-4.2.1-4" class="pilcrow">¶</a>
-</div>
-<p id="section-4.2.1-5"><em>Figure 7: Batch Authorization Delegation with Cross-Domain Sub-Clients</em><a href="#section-4.2.1-5" class="pilcrow">¶</a></p>
-<p id="section-4.2.1-6">Steps (1)-(4) are the same as in Figure 1.<a href="#section-4.2.1-6" class="pilcrow">¶</a></p>
-<p id="section-4.2.1-7">(a) The leader-client in Domain A exchanges the batch token with the AS in Domain A for a JAG that can be used in the AS in Domain B.<a href="#section-4.2.1-7" class="pilcrow">¶</a></p>
-<p id="section-4.2.1-8">(b) The AS of Domain A inspects the may_act.aud fields within the batch token, filters the authorization items down to those matching Domain B.<a href="#section-4.2.1-8" class="pilcrow">¶</a></p>
-<p id="section-4.2.1-9">(c) The AS of Domain A issues the JAG including the filtered authorization items. Since the may_act.aud fields have already been used for the domain-level filtering, and the top‑level aud claim of the JAG already identifies the target AS of domain B, the may_act.aud claim MAY be omitted from the issued JAG.  This step requires trust relationship between the ASs in Domain A and Domain B.  See Section 2.1 of <span>[<a href="#I-D.ietf-oauth-identity-chaining" class="cite xref">I-D.ietf-oauth-identity-chaining</a>]</span> for the trust relationship establishment.<a href="#section-4.2.1-9" class="pilcrow">¶</a></p>
-<p id="section-4.2.1-10">(d) The leader-client in Domain A presents the JAG as an assertion to the AS of Domain B.<a href="#section-4.2.1-10" class="pilcrow">¶</a></p>
-<p id="section-4.2.1-11">(e) The AS of Domain B validates the JAG, extracts and encapsulates the filtered authorization items in an access token and sends it to the leader-client. This access token itself constitutes a Domain B-specific batch token, whose authorization items are a subset of those in the original batch token issued in step (4).<a href="#section-4.2.1-11" class="pilcrow">¶</a></p>
-<p id="section-4.2.1-12">(f) The leader-client sends the access token to the sub-client.<a href="#section-4.2.1-12" class="pilcrow">¶</a></p>
-<p id="section-4.2.1-13">Steps (6)-(9) are the same as in Figure 1.<a href="#section-4.2.1-13" class="pilcrow">¶</a></p>
+~~~
+<em>Figure 7: Batch Authorization Delegation with Cross-Domain Sub-Clients</em><a href="#section-4.2.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-5">Steps (1)-(4) are the same as in Figure 1.<a href="#section-4.2.1-5" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-6">(a) The leader-client in Domain A exchanges the batch token with the AS in Domain A for a JAG that can be used in the AS in Domain B.<a href="#section-4.2.1-6" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-7">(b) The AS of Domain A inspects the may_act.aud fields within the batch token, filters the authorization items down to those matching Domain B.<a href="#section-4.2.1-7" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-8">(c) The AS of Domain A issues the JAG including the filtered authorization items. Since the may_act.aud fields have already been used for the domain-level filtering, and the top‑level aud claim of the JAG already identifies the target AS of domain B, the may_act.aud claim MAY be omitted from the issued JAG.  This step requires trust relationship between the ASs in Domain A and Domain B.  See Section 2.1 of <span>[<a href="#I-D.ietf-oauth-identity-chaining" class="cite xref">I-D.ietf-oauth-identity-chaining</a>]</span> for the trust relationship establishment.<a href="#section-4.2.1-8" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-9">(d) The leader-client in Domain A presents the JAG as an assertion to the AS of Domain B.<a href="#section-4.2.1-9" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-10">(e) The AS of Domain B validates the JAG, extracts and encapsulates the filtered authorization items in an access token and sends it to the leader-client. This access token itself constitutes a Domain B-specific batch token, whose authorization items are a subset of those in the original batch token issued in step (4).<a href="#section-4.2.1-10" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-11">(f) The leader-client sends the access token to the sub-client.<a href="#section-4.2.1-11" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-12">Steps (6)-(9) are the same as in Figure 1.<a href="#section-4.2.1-12" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="key-messages">
