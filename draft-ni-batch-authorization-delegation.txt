@@ -5,7 +5,7 @@
 Network Working Group                                              Y. Ni
 Internet-Draft                                                 C. P. Liu
 Intended status: Informational                                    Huawei
-Expires: 17 December 2026                                   15 June 2026
+Expires: 18 December 2026                                   16 June 2026
 
 
                      Batch Authorization Delegation
@@ -15,7 +15,7 @@ Abstract
 
    This document describes a mechanism for batch authorization
    delegation, which enables a batch of fine-grained, actor-bound
-   permissions in a single request and securely allocates them to
+   permissions in a single request and securely delegates them to
    multiple collaborating actors.
 
 About This Document
@@ -46,7 +46,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 17 December 2026.
+   This Internet-Draft will expire on 18 December 2026.
 
 Copyright Notice
 
@@ -101,7 +101,7 @@ Table of Contents
    client-server model to complex multi-entity orchestration.  For
    example, a network operation and management agent may coordinate
    specialized sub-agents, such as information collection, situation
-   analysis, assisted decision-making sub-agents; a miscroservice
+   analysis, assisted decision-making sub-agents; a microservice
    architecture may include an orchestrator that manages a group of
    back-end services.  Under these scenarios, a single user intent often
    requires the orchestration and collaboration of multiple entities.
