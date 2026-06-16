@@ -313,9 +313,9 @@ Figure 4 shows a token exchange request initiated by the Flight-Agent. In this r
  grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange
  &subject_token=[Encoded batch token]
  &subject_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
- &actor_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwc \
- zovL2FzLmV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9vcmlnaW5hbC1pc3N1ZXIu \
- ZXhhbXBsZS5uZXQiLCJleHAiOjE3Nzg0MDAwMDAsInN1YiI6ImZsaWdodF9hZ2VudEB \
+ &actor_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwc
+ zovL2FzLmV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9vcmlnaW5hbC1pc3N1ZXIu
+ ZXhhbXBsZS5uZXQiLCJleHAiOjE3Nzg0MDAwMDAsInN1YiI6ImZsaWdodF9hZ2VudEB
  leGFtcGxlLm5ldCJ9.lcg7QKoGrsD_TICwHJnb0_Fsd5FlocXXXQhjYi2-hC4
  &actor_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
  ```
@@ -399,47 +399,47 @@ The leader-client then presents the received JAG as an assertion to the AS in Do
 
 
 ~~~
-+--------++-------------+   +----------++----------+     +----------++----------+
-|  User  ||Leader-Client|   |    AS    ||    AS    |     |Sub-Client||    RS    |
-|Domain A||   Domain A  |   | Domain A || Domain B |     | Domain B || Domain B |
-+---+----++------+------+   +-------+--++-+--------+     +----+-----++---+------+
-    |            |(1)RAR            |     |                   |          |
-    |            |(with may_act)    |     |                   |          |
-    |            +------------------>     |                   |          |
-    |            |(2)Ask for consent|     |                   |          |
-    <------------+------------------+     |                   |          |
-    |(3)Consent  |                  |     |                   |          |
-    +------------+------------------>     |                   |          |
-    |            |(4)Issue          |     |                   |          |
-    |            | Batch Token      |     |                   |          |
-    |            <------------------+     |                   |          |
-    |            |(a)Token exchange |     |                   |          |
-    |            |   Request        |     |                   |          |
-    |            +------------------>     |                   |          |
-    |            |(b)Match domain   |     |                   |          |
-    |            |   &Downscope  +--+     |                   |          |
-    |            |               |  |     |                   |          |
-    |            |               +-->     |                   |          |
-    |            |(c)JAG            |     |                   |          |
-    |            <------------------+     |                   |          |
-    |            |(d)JAG            |     |                   |          |
-    |            +------------------+----->                   |          |
-    |            |(e)Access Token   |     |                   |          |
-    |            <------------------+-----+                   |          |
-    |            |(f)Access Token   |     |                   |          |
-    |            +------------------+-----+------------------->          |
-    |            |                  |     |(6)Token exchange  |          |
-    |            |                  |     |   Request         |          |
-    |            |                  |     <-------------------+          |
-    |            |                  |     |(7)Match identity  |          |
-    |            |                  |     +-+ &Downscope      |          |
-    |            |                  |     | |                 |          |
-    |            |                  |     <-+                 |          |
-    |            |                  |     |(8)Downscoped Token|          |
-    |            |                  |     +------------------->          |
-    |            |                  |     |                   |(9)access |
-    |            |                  |     |                   +---------->
-    |            |                  |     |                   |          |
++--------++-------------++--------++--------++----------++--------+
+|  User  ||Leader-Client||   AS   ||   AS   ||Sub-Client||   RS   |
+|Domain A||   Domain A  ||Domain A||Domain B|| Domain B ||Domain B|
++-+------++----+--------++-------+++-+------++---------+++-------++
+  |            |(1)RAR           |   |                 |         | 
+  |            |(with may_act)   |   |                 |         | 
+  |            +----------------->   |                 |         | 
+  |            |(2)Ask for consent   |                 |         | 
+  <------------+-----------------+   |                 |         | 
+  |(3)Consent  |                 |   |                 |         | 
+  +------------+----------------->   |                 |         | 
+  |            |(4)Issue         |   |                 |         | 
+  |            | Batch Token     |   |                 |         | 
+  |            <-----------------+   |                 |         | 
+  |            |(a)Token exchange|   |                 |         | 
+  |            |   Request       |   |                 |         | 
+  |            +----------------->   |                 |         | 
+  |            |(b)Match domain  |   |                 |         | 
+  |            |   &Downscope + -+   |                 |         | 
+  |            |              |  |   |                 |         | 
+  |            |              + ->   |                 |         | 
+  |            |(c)JAG           |   |                 |         | 
+  |            <-----------------+   |                 |         | 
+  |            |(d)JAG           |   |                 |         | 
+  |            +-----------------+--->                 |         | 
+  |            |(e)Access Token  |   |                 |         | 
+  |            <-----------------+---+                 |         | 
+  |            |(f)Access Token  |   |                 |         | 
+  |            +-----------------+---+----------------->         | 
+  |            |                 |   |(6)Token exchange|         | 
+  |            |                 |   |   Request       |         | 
+  |            |                 |   <-----------------+         | 
+  |            |                 |   |(7)Match identity|         | 
+  |            |                 |   +-+ &Downscope    |         | 
+  |            |                 |   | |               |         | 
+  |            |                 |   <-+               |         | 
+  |            |                 |   |(8)Downscoped Token        | 
+  |            |                 |   +----------------->         | 
+  |            |                 |   |                 |(9)access| 
+  |            |                 |   |                 +---------> 
+  |            |                 |   |                 |         | 
 ~~~
 *Figure 7: Batch Authorization Delegation with Cross-Domain Sub-Clients*
 
