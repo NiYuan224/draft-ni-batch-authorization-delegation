@@ -349,7 +349,7 @@ The AS generates a downscoped token that only contains the permissions in the fi
 &nbsp;&nbsp;&nbsp;&nbsp;**REQUIRED.** The owner who grants the consent (copied from the sub claim of the batch token in the subject_token field).
 
 **client_id**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;**REQUIRED.** The authenticated Sub‑Client.
+&nbsp;&nbsp;&nbsp;&nbsp;**REQUIRED.** The identifier of the authenticated sub‑client.
 
 **aud**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;**OPTIONAL.** The target RS where the sub-client intends to use the downscoped token.
