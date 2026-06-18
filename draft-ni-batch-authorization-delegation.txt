@@ -5,7 +5,7 @@
 Network Working Group                                              Y. Ni
 Internet-Draft                                                 C. P. Liu
 Intended status: Informational                                    Huawei
-Expires: 18 December 2026                                   16 June 2026
+Expires: 20 December 2026                                   18 June 2026
 
 
                      Batch Authorization Delegation
@@ -46,7 +46,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 18 December 2026.
+   This Internet-Draft will expire on 20 December 2026.
 
 Copyright Notice
 
@@ -522,7 +522,7 @@ Table of Contents
    claim of the batch token in the subject_token field).
 
    *client_id*
-   *REQUIRED.* The authenticated Sub-Client.
+   *REQUIRED.* The identifier of the authenticated sub-client.
 
    *aud*
    *OPTIONAL.* The target RS where the sub-client intends to use the
