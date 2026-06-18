@@ -397,7 +397,7 @@ Since the sub-client and leader-client reside in different trust domains, the le
 The leader-client then presents the received JAG as an assertion to the AS in Domain B to obtain an access token, which is subsequently exchanged by the specific sub-client in Domain B for a final downscoped token. This token exchange ensures that the final downscoped token used by the sub-client only contains the permissions it required.
 
 
-
+~~~
 +--------++-------------+   +----------++----------+     +----------++----------+
 |  User  ||Leader-Client|   |    AS    ||    AS    |     |Sub-Client||    RS    |
 |Domain A||   Domain A  |   | Domain A || Domain B |     | Domain B || Domain B |
