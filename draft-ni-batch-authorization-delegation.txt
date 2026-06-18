@@ -587,30 +587,50 @@ Table of Contents
    downscoped token used by the sub-client only contains the permissions
    it required.
 
-   +--------++-------------+ +----------++----------+
-   +----------++----------+ | User ||Leader-Client| | AS || AS | |Sub-
-   Client|| RS | |Domain A|| Domain A | | Domain A || Domain B | |
-   Domain B || Domain B | +---+----++------+------+
-   +-------+--++-+--------+
-   +----+-----++---+------+ | |(1)RAR | | | | | |(with
-   may_act) | | | | | +------------------> | | | | |(2)Ask for
-   consent| | | |
-   <------------+------------------+ | | | |(3)Consent | | | | |
-   +------------+------------------> | | | | |(4)Issue | | | | | | Batch
-   Token | | | | | <------------------+ | | | | |(a)Token
-   exchange | | | | | | Request | | | | |
-   +------------------> | | | | |(b)Match domain | | | | | | &Downscope
-   +--+ | | | | | | | | | | | | +--> | | | | |(c)JAG | | | | |
-   <------------------+ | | | | |(d)JAG | | | | |
-   +------------------+-----> | | | |(e)Access Token | | | | |
-   <------------------+-----+ | | | |(f)Access Token | | | | |
-   +------------------+-----+-------------------> | | | | |(6)Token
-   exchange | | | | | | Request | | | | |
-   <-------------------+ | | | | |(7)Match identity | | | | | +-+
-   &Downscope | | | | | | | | | | | | <-+ | | | | | |(8)Downscoped
-   Token| | | | | +-------------------> | | | | | |(9)access | | | | |
-   +----------> | | | | | | ~~~ _Figure 7: Batch Authorization
-   Delegation with Cross-Domain Sub-Clients_
++--------++-------------+   +----------++----------+     +----------++----------+
+|  User  ||Leader-Client|   |    AS    ||    AS    |     |Sub-Client||    RS    |
+|Domain A||   Domain A  |   | Domain A || Domain B |     | Domain B || Domain B |
++---+----++------+------+   +-------+--++-+--------+     +----+-----++---+------+
+    |            |(1)RAR            |     |                   |          |
+    |            |(with may_act)    |     |                   |          |
+    |            +------------------>     |                   |          |
+    |            |(2)Ask for consent|     |                   |          |
+    <------------+------------------+     |                   |          |
+    |(3)Consent  |                  |     |                   |          |
+    +------------+------------------>     |                   |          |
+    |            |(4)Issue          |     |                   |          |
+    |            | Batch Token      |     |                   |          |
+    |            <------------------+     |                   |          |
+    |            |(a)Token exchange |     |                   |          |
+    |            |   Request        |     |                   |          |
+    |            +------------------>     |                   |          |
+    |            |(b)Match domain   |     |                   |          |
+    |            |   &Downscope  +--+     |                   |          |
+    |            |               |  |     |                   |          |
+    |            |               +-->     |                   |          |
+    |            |(c)JAG            |     |                   |          |
+    |            <------------------+     |                   |          |
+    |            |(d)JAG            |     |                   |          |
+    |            +------------------+----->                   |          |
+    |            |(e)Access Token   |     |                   |          |
+    |            <------------------+-----+                   |          |
+    |            |(f)Access Token   |     |                   |          |
+    |            +------------------+-----+------------------->          |
+    |            |                  |     |(6)Token exchange  |          |
+    |            |                  |     |   Request         |          |
+    |            |                  |     <-------------------+          |
+    |            |                  |     |(7)Match identity  |          |
+    |            |                  |     +-+ &Downscope      |          |
+    |            |                  |     | |                 |          |
+    |            |                  |     <-+                 |          |
+    |            |                  |     |(8)Downscoped Token|          |
+    |            |                  |     +------------------->          |
+    |            |                  |     |                   |(9)access |
+    |            |                  |     |                   +---------->
+    |            |                  |     |                   |          |
+
+   _Figure 7: Batch Authorization Delegation with Cross-Domain Sub-
+   Clients_
 
    Steps (1)-(4) are the same as in Figure 1.
 
