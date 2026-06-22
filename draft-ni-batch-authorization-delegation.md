@@ -11,13 +11,15 @@ v: 3
 # area: AREA
 # workgroup: WG Working Group
 keyword:
- - next generation
- - unicorn
- - sparkling distributed ledger
+  - Rich Authorization Request
+  - Token Exchange
+  - Identity Chaining
+  - Identity Assertion
+  - Batch Authorization Delegation
 venue:
 #  group: WG
 #  type: Working Group
-#  mail: WG@example.com
+#  mail: oauth@ietf.org
 #  arch: https://example.com/WG
   github: "NiYuan224/draft-ni-batch-authorization-delegation"
   latest: "https://NiYuan224.github.io/draft-ni-batch-authorization-delegation/draft-ni-batch-authorization-delegation.html"
