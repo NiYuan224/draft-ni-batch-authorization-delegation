@@ -116,7 +116,7 @@ Table of Contents
    entity obtains only the minimum permissions required for its sub-
    task, thereby balancing efficiency and security.
 
-   While the existing OAuth 2.0 protocal and its extensions provide a
+   While the existing OAuth 2.0 protocol and its extensions provide a
    foundation for authorization, they lack native support for efficient,
    secure delegation for coordinated tasks:
 
@@ -145,7 +145,7 @@ Table of Contents
       specify how these structured permissions can be partitioned and
       delegated to different actors during a subsequent token exchange.
 
-   In summary, the existing OAuth 2.0 protocal and its extensions lack a
+   In summary, the existing OAuth 2.0 protocol and its extensions lack a
    mechanism to express, partition, and delegate fine-grained structured
    permissions across multiple collaborating entities.
 
@@ -423,7 +423,7 @@ Table of Contents
 
    *authorization_details*
    *REQUIRED.* An JSON array containing all the consented authorization
-   items, including the permission descriptions and their correspondiing
+   items, including the permission descriptions and their corresponding
    may_act delegation constraints.
 
    Figure 3 shows an example of the batch token JWT payload, which
@@ -806,7 +806,7 @@ Table of Contents
    +----------------+-------------> | | | | | |(9)Access| | | | |
    +---------> | | | | | |
 
-   ~~~ _Figure 11: Batch Authorization Delegation with the Cross-Domain
+   ~~~ _Figure 12: Batch Authorization Delegation with the Cross-Domain
    User_
 
    (a) The user authenticates with the IdP Server.
@@ -864,7 +864,7 @@ Table of Contents
    "actions": ["search", "book"], "locations":
    ["https://domain_a.example.com/flights"] }, { "type":
    "hotel_reservation", "actions": ["search", "book"], "locations":
-   ["https://domain_a.example.com/hotels"] } ] } _Figure 12: Access
+   ["https://domain_a.example.com/hotels"] } ] } _Figure 13: Access
    Token Payload_
 
 4.3.2.2.  Token Exchange Request for the Batch Token
@@ -883,9 +883,9 @@ Table of Contents
    &authorization_details=[{"type":"flight_booking","actions":["search","book"],"locations":["https://domain_a.example.com/
    flights"],"may_act":{"sub":"flight_agent@domain_a.example.com"}},{"type":"hotel_reservation","actions":["search","book"],"locations":["https://domain_a.example.com/
    hotels"],"may_act":{"sub":"hotel_agent@domain_a.example.com"}}] ```
-   _Figure 13: Token Exchange Request for Batch Token_
+   _Figure 14: Token Exchange Request for Batch Token_
 
-   The AS verifies that the leader-client has soley appended delegation
+   The AS verifies that the leader-client has solely appended delegation
    constraints without modifying the original permissions, and then
    issues a batch token as shown in Figure 3.  The subsequent steps,
    including distribution of the batch token to sub-clients, token

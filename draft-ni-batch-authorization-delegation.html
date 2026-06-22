@@ -1258,7 +1258,7 @@ svg {
       </h2>
 <p id="section-1-1">Due to the rise of collaboration service ecosystems and AI Agents, resource access patterns are shifting from a traditional, single client-server model to complex multi-entity orchestration. For example, a network operation and management agent may coordinate specialized sub-agents, such as information collection, situation analysis, assisted decision-making sub-agents; a microservice architecture may include an orchestrator that manages a group of back-end services. Under these scenarios, a single user intent often requires the orchestration and collaboration of multiple entities.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">While a single, batch authorization with a comprehensive set of permissions can minimize user interaction and improve experience, it risks granting excessive privileges to entities that require only a subset of permissions for their specific subtasks. Therefore, a critical challenge arises in multi-entity orchestration. The core issue is how to request and authorize permissions in a single batch, while securely delegating fine-grained privileges to ensure each entity obtains only the minimum permissions required for its sub-task, thereby balancing efficiency and security.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">While the existing OAuth 2.0 protocal and its extensions provide a foundation for authorization, they  lack native support for efficient, secure delegation for coordinated tasks:<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-3">While the existing OAuth 2.0 protocol and its extensions provide a foundation for authorization, they  lack native support for efficient, secure delegation for coordinated tasks:<a href="#section-1-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1-4.1">
           <p id="section-1-4.1.1">OAuth 2.0<span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>:  The OAuth 2.0 authorization framework enables a client
@@ -1271,7 +1271,7 @@ to obtain limited access to protected resources on behalf of a resource owner. H
           <p id="section-1-4.3.1">OAuth 2.0 Rich Authorization Request (RAR) <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>: RAR introduces a new parameter authorization_details to allow clients to express their fine-grained authorization requirements using the JSON structures. Such a parameter allows several fine-grained permissions to be included in a single authorization request, as well as the issued access token. However, RAR does not currently specify how these structured permissions can be partitioned and delegated to different actors during a subsequent token exchange.<a href="#section-1-4.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-1-5">In summary, the existing OAuth 2.0 protocal and its extensions lack a mechanism to express, partition, and delegate fine-grained structured permissions across multiple collaborating entities.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-5">In summary, the existing OAuth 2.0 protocol and its extensions lack a mechanism to express, partition, and delegate fine-grained structured permissions across multiple collaborating entities.<a href="#section-1-5" class="pilcrow">¶</a></p>
 <p id="section-1-6">To bridge this gap, this document adds the delegation information directly to the multiple fine-grained permissions in the RAR. By extending the authorization_details with a may_act claim, a client can request a comprehensive set of permissions, each of which specify which actor is authorized to delegate. The Authorization Server (AS) then responds this request with a batch token, which contains the above permissions and their corresponding delegation constraints. When an actor performs a token exchange using the batch token, the AS applies a downscoping strategy, filtering the permissions based on the consistency of the may_act claim and actor's identity. This ensures a convenient authorization experience for the user while strictly enforcing the principle of least privilege across multiple collaborating entities.<a href="#section-1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1443,7 +1443,7 @@ to obtain limited access to protected resources on behalf of a resource owner. H
 <p id="section-3.2.3-6"><strong>client_id</strong><br>
             <strong>REQUIRED.</strong> The identifier of the leader-client that initiated the authorization request.<a href="#section-3.2.3-6" class="pilcrow">¶</a></p>
 <p id="section-3.2.3-7"><strong>authorization_details</strong><br>
-            <strong>REQUIRED.</strong> An JSON array containing all the consented authorization items, including the permission descriptions and their correspondiing may_act delegation constraints.<a href="#section-3.2.3-7" class="pilcrow">¶</a></p>
+            <strong>REQUIRED.</strong> An JSON array containing all the consented authorization items, including the permission descriptions and their corresponding may_act delegation constraints.<a href="#section-3.2.3-7" class="pilcrow">¶</a></p>
 <p id="section-3.2.3-8">Figure 3 shows an example of the batch token JWT payload, which encapsulates all consented authorization items from Figure 2. The sub claim identifies the user who consents, the client_id claim identifies the travel assistant as the leader-client that initiates the request, each may_act.sub field identifies the sub-client authorized to exercise the corresponding permission. The aud claim is set to the AS itself, as the batch token will be presented back to the AS for further token exchange.<a href="#section-3.2.3-8" class="pilcrow">¶</a></p>
 <p id="section-3.2.3-9"><code>text
 {
@@ -1871,7 +1871,7 @@ to obtain limited access to protected resources on behalf of a resource owner. H
   |                      |    |                |             +---------&gt;
   |                      |    |                |             |         |<a href="#section-4.3.1-4" class="pilcrow">¶</a></p>
 <p id="section-4.3.1-5">~~~
-  <em>Figure 11: Batch Authorization Delegation with the Cross-Domain User</em><a href="#section-4.3.1-5" class="pilcrow">¶</a></p>
+  <em>Figure 12: Batch Authorization Delegation with the Cross-Domain User</em><a href="#section-4.3.1-5" class="pilcrow">¶</a></p>
 <p id="section-4.3.1-6">(a) The user authenticates with the IdP Server.<a href="#section-4.3.1-6" class="pilcrow">¶</a></p>
 <p id="section-4.3.1-7">(b) The user's client obtains an Identity Assertion from the IdP.<a href="#section-4.3.1-7" class="pilcrow">¶</a></p>
 <p id="section-4.3.1-8">(c) The user's client requests an ID-JAG from Domain U's IdP, with authorization_details intended for use at Domain A's AS. This step requires a trust relationship between the IdP in Domain U and the AS in Domain A.<a href="#section-4.3.1-8" class="pilcrow">¶</a></p>
@@ -1919,7 +1919,7 @@ to obtain limited access to protected resources on behalf of a resource owner. H
   ]
 }
 </code>
-              <em>Figure 12: Access Token Payload</em><a href="#section-4.3.2.1-2" class="pilcrow">¶</a></p>
+              <em>Figure 13: Access Token Payload</em><a href="#section-4.3.2.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="token-exchange-request-for-the-batch-token">
@@ -1938,8 +1938,8 @@ Authorization: Basic bGVhZGVyLWNsaWVudDpzZWNyZXQ=<a href="#section-4.3.2.2-2" cl
 &amp;subject_token_type=urn:ietf:params:oauth:token-type:access_token
 &amp;authorization_details=[{"type":"flight_booking","actions":["search","book"],"locations":["https://domain_a.example.com/flights"],"may_act":{"sub":"flight_agent@domain_a.example.com"}},{"type":"hotel_reservation","actions":["search","book"],"locations":["https://domain_a.example.com/hotels"],"may_act":{"sub":"hotel_agent@domain_a.example.com"}}]
 ```
-<em>Figure 13: Token Exchange Request for Batch Token</em><a href="#section-4.3.2.2-3" class="pilcrow">¶</a></p>
-<p id="section-4.3.2.2-4">The AS verifies that the leader‑client has soley appended delegation constraints without modifying the original permissions, and then issues a batch token as shown in Figure 3. The subsequent steps, including distribution of the batch token to sub‑clients, token exchange initiated by each sub‑client, and issuance of downscoped tokens as shown in Figure 6, are identical to the intra‑domain flow.<a href="#section-4.3.2.2-4" class="pilcrow">¶</a></p>
+<em>Figure 14: Token Exchange Request for Batch Token</em><a href="#section-4.3.2.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.3.2.2-4">The AS verifies that the leader‑client has solely appended delegation constraints without modifying the original permissions, and then issues a batch token as shown in Figure 3. The subsequent steps, including distribution of the batch token to sub‑clients, token exchange initiated by each sub‑client, and issuance of downscoped tokens as shown in Figure 6, are identical to the intra‑domain flow.<a href="#section-4.3.2.2-4" class="pilcrow">¶</a></p>
 <p id="section-4.3.2.2-5">The handling of verification failures (e.g., rejection or re‑consent) is implementation‑specific and out of scope for this specification.<a href="#section-4.3.2.2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
