@@ -312,6 +312,19 @@ Table of Contents
 
    (9) The sub-client accesses the RS with the downscoped token.
 
+   This mechanism offers two key advantages.  First, it fully reuses
+   existing standards, combining RAR's flexible permission definitions
+   with Token Exchange's delegation semantics by simply moving the
+   may_act claim from the entity level down to individual authorization
+   items without altering the claim's original meaning.  This slight
+   change effectively enables the expression, partition, and delegation
+   of fine-grained structured permissions across multiple collaborating
+   entities.  Second, the final downscoped token introduces no new
+   claims or structural changes.  Since RS deployments are often
+   numerous and costly to upgrade, this design ensures zero modification
+   to existing RSs, enabling smooth adoption with minimal
+   reconfiguration.
+
 3.2.  Batch Token
 
 3.2.1.  RAR Extension with the may_act claim
