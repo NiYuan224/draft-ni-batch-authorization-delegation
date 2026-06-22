@@ -17,7 +17,6 @@ keyword:
   - Identity Assertion
   - Batch Authorization Delegation
 
-    
 venue:
 #  group: WG
 #  type: Working Group
