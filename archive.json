@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-06-25T03:50:49.710815+00:00",
+  "timestamp": "2026-06-28T04:03:43.720355+00:00",
   "repo": "NiYuan224/draft-ni-batch-authorization-delegation",
   "labels": [
     {
@@ -50,5 +50,59 @@
     }
   ],
   "issues": [],
-  "pulls": []
+  "pulls": [
+    {
+      "number": 1,
+      "id": "PR_kwDOS4b4z87rRbij",
+      "title": "edits",
+      "url": "https://github.com/NiYuan224/draft-ni-batch-authorization-delegation/pull/1",
+      "state": "OPEN",
+      "author": "liuchunchi",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "multiple edits\r\n====\r\nnext todo:\r\nctrl+h terminlogy changes \r\nno batch token in cross domain\r\nupdate examples\r\nfix the code\r\nsimplify derivative scenarios",
+      "createdAt": "2026-06-27T10:03:40Z",
+      "updatedAt": "2026-06-27T10:04:20Z",
+      "baseRepository": "NiYuan224/draft-ni-batch-authorization-delegation",
+      "baseRefName": "main",
+      "baseRefOid": "f4aab550427329ae54db01388f2909db99477b33",
+      "headRepository": "NiYuan224/draft-ni-batch-authorization-delegation",
+      "headRefName": "pcl-changes",
+      "headRefOid": "af9446d91365cf32d528addb3dd92aca5a0fe54b",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOS4b4z88AAAABEUgtew",
+          "commit": {
+            "abbreviatedOid": "af9446d"
+          },
+          "author": "github-actions",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-27T10:04:08Z",
+          "updatedAt": "2026-06-27T10:04:08Z",
+          "comments": [
+            {
+              "originalPosition": 104,
+              "body": "````suggestion\nThis mechanism offers two key advantages.\n* First, it fully reuses existing standards, combining RAR's flexible permission definitions with Token Exchange's delegation semantics by simply moving the `may_act` claim from the entity level down to individual authorization items without altering the claim's original meaning. This slight change effectively fulfills the expression, partition, and delegation purpose of fine-grained structured permissions across multiple collaborating entities.\n````",
+              "createdAt": "2026-06-27T10:04:08Z",
+              "updatedAt": "2026-06-27T10:04:08Z"
+            },
+            {
+              "originalPosition": 12,
+              "body": "````suggestion\n// For example, a network operation and management agent may coordinate specialized sub-agents, such as information collection, situation analysis, assisted decision-making sub-agents; a microservice architecture may include an orchestrator that manages a group of back-end services. Under these scenarios, a single user intent often requires the orchestration and collaboration of multiple entities.\n````",
+              "createdAt": "2026-06-27T10:04:08Z",
+              "updatedAt": "2026-06-27T10:04:08Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
