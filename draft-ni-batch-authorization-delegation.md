@@ -68,7 +68,7 @@ Due to the rise of collaboration service ecosystems and AI Agents, resource acce
 Therefore, the core challenge is to request access permissions to a batch of resources from the user at once, while precisely delegating fine-grained privileges to sub-agents that complete each of its corresponding sub-tasks.
 
 need edits: Certain use cases include (China Unipay example, add agent for writing slides example, AI-SOC) ... // These use cases usually require long hours of execution and requesting permission in the middle of the task may halt the process, especially when human is not supposed to be around, which is not acceptable.
-// For example, a network operation and management agent may coordinate specialized sub-agents, such as information collection, situation analysis, assisted decision-making sub-agents; a microservice architecture may include an orchestrator that manages a group of back-end services. Under these scenarios, a single user intent often requires the orchestration and collaboration of multiple entities. 
+// For example, a network operation and management agent may coordinate specialized sub-agents, such as information collection, situation analysis, assisted decision-making sub-agents; a microservice architecture may include an orchestrator that manages a group of back-end services. Under these scenarios, a single user intent often requires the orchestration and collaboration of multiple entities.
 
 While the existing OAuth 2.0 protocol and its extensions provide a foundation for authorization, they lack native support for efficient, secure delegation for a batch of coordinated tasks:
 
