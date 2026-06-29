@@ -13,8 +13,8 @@ Expires: 31 December 2026                                   29 June 2026
 
 Abstract
 
-   This document describes a mechanism for batch authorization
-   delegation, which enables a batch of fine-grained, actor-bound
+   This document describes a mechanism for Batch Authorization
+   Delegation, which enables a batch of fine-grained, actor-bound
    permissions in a single request and securely delegates them to
    multiple collaborating actors.
 
@@ -79,7 +79,7 @@ Table of Contents
    4.  Derivative Scenarios
      4.1.  Intra-Domain Batch Authorization Delegation
      4.2.  Batch Authorization Delegation with Cross-Domain
-           sub-clients
+           Sub-Clients
        4.2.1.  Workflow
        4.2.2.  Examples
      4.3.  Batch Authorization Delegation with the Cross-Domain User
@@ -185,12 +185,12 @@ Table of Contents
    which actor is authorized to exercise such privilege.  The
    Authorization Server (AS) then responds this request with a Batch
    Token, which contains the above permissions and their corresponding
-   delegation constraints.  When an actor performs a token exchange
-   using the batch token, the AS applies a downscoping strategy,
-   filtering the permissions based on the consistency of the may_act
-   claim and actor's identity.  This ensures a convenient authorization
-   experience for the user while strictly enforcing the principle of
-   least privilege across multiple collaborating entities.
+   designated actors.  When an actor performs a token exchange using the
+   Batch Token, the AS applies a downscoping strategy, filtering the
+   permissions based on the consistency of the may_act claim and actor's
+   identity.  This ensures a convenient authorization experience for the
+   user while strictly enforcing the principle of minimal privilege
+   across multiple collaborating entities.
 
 2.  Conventions and Definitions
 
@@ -209,24 +209,22 @@ Table of Contents
 
    In addition, the following terms are defined for this document:
 
-   //CTRL-H replace, Capital letter
-
    Leader-Client: The entity responsible for coordinating tasks and
-   requesting permissions in a batch on behalf of sub-clients.  The
-   leader-client initiates rich authorization requests to the AS, and
-   sends the obtained Batch Token to sub-clients.  According to examples
-   listed above, leader-client is the principal personal assistant
+   requesting permissions in a batch on behalf of Sub-Clients.  The
+   Leader-Client initiates rich authorization requests to the AS, and
+   sends the obtained Batch Token to Sub-Clients.  According to examples
+   listed above, Leader-Client is the principal personal assistant
    agent, a microservice orchestrator, or an API gateway.
 
-   Sub-Client: The entity that is subordinate to the leader-client and
+   Sub-Client: The entity that is subordinate to the Leader-Client and
    redeem access tokens to Resource Servers (RS) to perform specific
-   sub-tasks.  The sub-client exchanges the received Batch Token for a
+   sub-tasks.  The Sub-Client exchanges the received Batch Token for a
    downscoped access token with partial privileges.  Sub-clients could
    be sub-agents and microservices.
 
    Batch Authorization Delegation: A mechanism proposed in this document
-   that a leader-client requests permissions in a batch and delegates
-   them to its subordinate sub-clients.
+   that a Leader-Client requests permissions in a batch and delegates
+   them to its subordinate Sub-Clients.
 
    Authorization Item: An authorization item defines one permission per
    one corresponding designated actor.  There may be multiple
@@ -234,49 +232,48 @@ Table of Contents
    encapsulated in the rich authorization request and the issued Batch
    Token.
 
-   Batch Token: A special JWT access token issued by the AS to the
-   leader-client.  It encapsulates multiple Authorization Items,
-   enabling subsequent delegation.
+   Batch Token: A JWT issued by the AS to the Leader-Client.  It
+   encapsulates multiple Authorization Items, enabling subsequent
+   delegation.
 
-   Delegation Constraint-->Designated ActorTODO (fix the code): The
-   may_act claim within an authorization item that specifies the sub-
-   client authorized to exercise that permission.
+   Designated Actor: The may_act claim within an authorization item that
+   specifies the Sub-Client authorized to exercise that permission.
 
-   Downscoped Token: The access token issued to a sub-client as a result
+   Downscoped Token: The access token issued to a Sub-Client as a result
    of token exchange, which is to be used at the RS to access protected
    resources.  It contains only a subset of authorization items whose
-   delegation constraints match the requesting sub-client's identity.
+   designated actors match the requesting Sub-Client's identity.
 
 3.  Batch Authorization Delegation
 
    This document specifies a mechanism combining OAuth RAR [RFC9396] and
    Token Exchange [RFC8693] to achieve Batch Authorization Delegation.
 
-   The leader-client sends a rich authorization request with multiple
+   The Leader-Client sends a rich authorization request with multiple
    authorization items to the AS.  Each authorization item not only
-   describes the required permission but also declares the sub-client to
-   which the permission can be delegated to via delegation constraints.
-   Upon user confirmation, the AS issues a Batch Token to the leader-
-   client, which encapsulates the authorization items confirmed by the
-   user.  The leader-client distributes the batch token to sub-clients.
+   describes the required permission but also declares the Sub-Client to
+   which the permission can be delegated to via designated actors.  Upon
+   user confirmation, the AS issues a Batch Token to the Leader-Client,
+   which encapsulates the authorization items confirmed by the user.
+   The Leader-Client distributes the Batch Token to Sub-Clients.
 
-   The sub-client initiates a token exchange request to the AS.  The AS
-   verifies the sub-client's identity against the Designated Actors in
-   the batch token, and then filters out one or more authorization items
-   corresponding to this specific sub-client.  Then the AS generates a
-   downscoped token containing only the permissions from the filtered
+   The Sub-Client initiates a token exchange request to the AS.  The AS
+   verifies the Sub-Client's identity against the Designated Actors in
+   the Batch Token, and then filters out one or more authorization items
+   corresponding to this specific Sub-Client.  Then the AS generates a
+   Downscoped Token containing only the permissions from the filtered
    authorization items.
 
-   Such a mechanism enables the leader-client to perform a one-time
-   batch authorization as well as ensuring each sub-client obtains an
+   Such a mechanism enables the Leader-Client to perform a one-time
+   batch authorization as well as ensuring each Sub-Client obtains an
    access token containing only the permissions it requires, thereby
    realizing both efficiency and security.
 
 3.1.  Overview
 
    Figure 1 shows the flow of Batch Authorization Delegation.  Note that
-   a leader-client MAY coordinate several sub-clients.  For simplicity,
-   only one sub-client is shown in Figure 1.
+   a Leader-Client MAY coordinate several Sub-Clients.  For simplicity,
+   only one Sub-Client is shown in Figure 1.
 
    +----++-------------+    +----+        +----------++----+
    |User||Leader-Client|    | AS |        |Sub-Client|| RS |
@@ -312,12 +309,12 @@ Table of Contents
 
    _Figure 1: Batch Authorization Delegation Flow_
 
-   (1) The leader-client sends a rich authorization request containing
+   (1) The Leader-Client sends a rich authorization request containing
    multiple authorization items to the AS.  Each authorization item
    includes a fine-grained permission (described by several claims
    defined in [RFC9396], e.g., type, action, location, etc.) and a
-   delegation constraint that uses the may_act claim to designate which
-   sub-client is authorized for the permission.
+   designated actor that uses the may_act claim to designate which Sub-
+   Client is authorized for the permission.
 
    (2) After receiving the rich authorization request, the AS presents
    all authorization items in the request to the user for consent.
@@ -325,24 +322,24 @@ Table of Contents
    (3) The user confirms all or some of the authorization items and
    sends the result back to the AS.
 
-   (4) The AS generates a batch token, which encapsulates the
+   (4) The AS generates a Batch Token, which encapsulates the
    authorization items confirmed by the user and issues it to the
-   leader-client.
+   Leader-Client.
 
-   (5) The leader-client distributes the batch token to the sub-client.
+   (5) The Leader-Client distributes the Batch Token to the Sub-Client.
 
-   (6) The sub-client initiates a token exchange request to the AS to
-   exchange the batch token to a downscoped token.
+   (6) The Sub-Client initiates a token exchange request to the AS to
+   exchange the Batch Token to a Downscoped Token.
 
-   (7) The AS verifies the identity of sub-client against the delegation
-   constraints in the batch token to filter the authorization items
-   corresponding to the sub-client.
+   (7) The AS verifies the identity of Sub-Client against the designated
+   actors in the Batch Token to filter the authorization items
+   corresponding to the Sub-Client.
 
-   (8) The AS generates a downscoped token that only contains the
+   (8) The AS generates a Downscoped Token that only contains the
    permissions in the filtered authorization items and send it to the
-   sub-client.
+   Sub-Client.
 
-   (9) The sub-client accesses the RS with the downscoped token.
+   (9) The Sub-Client accesses the RS with the Downscoped Token.
 
    This mechanism offers two key advantages. * First, it fully reuses
    existing standards, combining RAR's flexible permission definitions
@@ -351,7 +348,7 @@ Table of Contents
    items without altering the claim's original meaning.  This slight
    change effectively fulfills the expression, partition, and delegation
    purpose of fine-grained structured permissions across multiple
-   collaborating entities. * Second, the final downscoped token
+   collaborating entities. * Second, the final Downscoped Token
    introduces no new claims or structural changes.  Since RS deployments
    are often numerous and costly to upgrade, this design ensures zero
    modification to existing RSs, enabling smooth adoption with minimal
@@ -369,12 +366,12 @@ Table of Contents
    In contrast, this document leverages authorization_details defined in
    [RFC9396] to describe multiple authorization items, each of which
    contains a permission and a nested may_act claim serving as a
-   delegation constraint.  This helps to define who is authorized to
-   perform which permission, thus changing the entity-level delegation
-   into an item-level delegation.
+   designated actor.  This helps to define who is authorized to perform
+   which permission, thus changing the entity-level delegation into an
+   item-level delegation.
 
    *may_act*
-   *REQUIRED.* A JSON object that identifies the specific sub-client
+   *REQUIRED.* A JSON object that identifies the specific Sub-Client
    authorized to exercise the permission.
 
    The may_act JSON object contains fields that specify the intended
@@ -382,23 +379,23 @@ Table of Contents
    following two fields:
 
    *sub*
-   *REQUIRED.* A string that uniquely identifies the sub-client
+   *REQUIRED.* A string that uniquely identifies the Sub-Client
    authorized to exercise the permission.
 
    *aud*
    *OPTIONAL.* A string that identifies the AS of the trust domain where
-   the sub-client resides.  If the sub-client and the leader-client are
+   the Sub-Client resides.  If the Sub-Client and the Leader-Client are
    located in different Trust Domains, this claim MUST be present to
    specify the target AS.  If this claim is omitted, it MUST be assumed
-   that the sub-client and the leader-client reside in the same trust
+   that the Sub-Client and the Leader-Client reside in the same trust
    domain.
 
    Figure 2 shows an example of authorization_details containing the
    may_act claim.  It represents a typical travel management scenario in
-   which the leader-client requests two distinct authorization items: a
+   which the Leader-Client requests two distinct authorization items: a
    flight booking permission delegated to the Flight-Agent, and a hotel
-   reservation permission delegated to the Hotel-Agent.  Both sub-
-   clients are located in the same trust domain as the leader-client so
+   reservation permission delegated to the Hotel-Agent.  Both Sub-
+   Clients are located in the same trust domain as the Leader-Client so
    that the may_act.aud field is omitted.  This structure demonstrates
    how multiple permissions can be bound to different actors within an
    authorization request.
@@ -418,13 +415,13 @@ Table of Contents
    general processing rules of the AS defined in [RFC9396] apply, with
    the following extensions:
 
-   *  The AS MUST validate that the sub-client identified in the
+   *  The AS MUST validate that the Sub-Client identified in the
       may_act.sub field is known.  If the may_act.aud field is present,
       the AS MUST validate that the target AS is reachable and trusted
       according to local policies.
 
    *  The AS MUST present all the authorization items, including the
-      requested permissions and their corresponding intended sub-clients
+      requested permissions and their corresponding intended Sub-Clients
       to the user.  The user MAY:
 
       -  Grant all requested authorization items.
@@ -436,13 +433,13 @@ Table of Contents
       code).
 
    After user consent, the AS issues an authorization code as a grant to
-   the leader-client.  The leader-client then exchanges the
-   authorization code for a batch token, following the standard
+   the Leader-Client.  The Leader-Client then exchanges the
+   authorization code for a Batch Token, following the standard
    authorization response and token request flow as defined in
    [RFC6749].
 
-   Subsequently, the AS generates a batch token and returns it to the
-   leader-client in the Token response.  The batch token is a JWT access
+   Subsequently, the AS generates a Batch Token and returns it to the
+   Leader-Client in the Token response.  The Batch Token is a JWT access
    token conforming to [RFC9068], with the following claims and values:
 
 3.2.3.  Batch Token Claims
@@ -454,12 +451,12 @@ Table of Contents
    *REQUIRED.* The identifier of the user who grants the consent.
 
    *aud*
-   *REQUIRED.* MUST be set to the AS itself, as the batch token is
+   *REQUIRED.* MUST be set to the AS itself, as the Batch Token is
    intended only for token exchange at the AS and cannot be directly
    used at the RS.
 
    *client_id*
-   *REQUIRED.* The identifier of the leader-client that initiated the
+   *REQUIRED.* The identifier of the Leader-Client that initiated the
    authorization request.
 
    *authorization_details*
@@ -467,13 +464,13 @@ Table of Contents
    items, including the permission descriptions and their corresponding
    may_act Designated Actors.
 
-   Figure 3 shows an example of the batch token JWT payload, which
+   Figure 3 shows an example of the Batch Token JWT payload, which
    encapsulates all consented authorization items from Figure 2.  The
    sub claim identifies the user who consents, the client_id claim
-   identifies the travel assistant as the leader-client that initiates
-   the request, each may_act.sub field identifies the sub-client
+   identifies the travel assistant as the Leader-Client that initiates
+   the request, each may_act.sub field identifies the Sub-Client
    authorized to exercise the corresponding permission.  The aud claim
-   is set to the AS itself, as the batch token will be presented back to
+   is set to the AS itself, as the Batch Token will be presented back to
    the AS for further token exchange.
 
    text { "iss": "https://as.example.com", "sub": "user@example.com",
@@ -491,21 +488,21 @@ Table of Contents
 
 3.3.1.  Token Exchange Request
 
-   When a sub-client receives a batch token from the leader-client, it
+   When a Sub-Client receives a Batch Token from the Leader-Client, it
    MUST perform a token exchange request to the AS to obtain a
-   downscoped token.  The Batch Token MUST NOT be used directly to the
+   Downscoped Token.  The Batch Token MUST NOT be used directly to the
    Resource Server to redeem resources by anyone.  Within the token
    exchange request, the parameters described in section 2.1 of
    [RFC8693] apply with the following additional requirements:
 
    *subject_token*
-   *REQUIRED.* The batch token received from the leader-client.
+   *REQUIRED.* The Batch Token received from the Leader-Client.
 
    *subject_token_type*
    *REQUIRED.* urn:ietf:params:oauth:token-type:jwt.
 
-   Since the AS has to identify the requesting sub-client to filter the
-   authorization items, it MUST authenticate the sub-client.  The AS MAY
+   Since the AS has to identify the requesting Sub-Client to filter the
+   authorization items, it MUST authenticate the Sub-Client.  The AS MAY
    use the following authentication methods:
 
    *  Password-based authentication as defined in Section 2.3.1 of
@@ -520,8 +517,8 @@ Table of Contents
    *  Actor token as defined in [RFC8693].
 
    Figure 4 shows a token exchange request initiated by the Flight-
-   Agent.  In this request, the Flight-Agent provides the received batch
-   token from Figure 3 as the subject_token.  To satisfy the requirement
+   Agent.  In this request, the Flight-Agent provides the received Batch
+   Token from Figure 3 as the subject_token.  To satisfy the requirement
    for client authentication, the Flight-Agent provides its own identity
    token as an actor_token (detailed in Figure 5).
 
@@ -529,7 +526,7 @@ Table of Contents
    Type: application/x-www-form-urlencoded
 
    grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange
-   &subject_token=[Encoded batch token]
+   &subject_token=[Encoded Batch Token]
    &subject_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
    &actor_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwc
    zovL2FzLmV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9vcmlnaW5hbC1pc3N1ZXIu
@@ -544,40 +541,40 @@ Table of Contents
 
 3.3.2.  Processing Rules of the Authorization Server
 
-   In addition to authenticating the requesting sub-client, the AS MUST
+   In addition to authenticating the requesting Sub-Client, the AS MUST
 
-   *  Validate the batch token provided in the subject_token.
+   *  Validate the Batch Token provided in the subject_token.
 
-   *  Retrieve the authorization_details from the batch token’s payload
+   *  Retrieve the authorization_details from the Batch Token’s payload
       and filter only those authorization items whose may_act.sub fields
-      exactly matches the authenticated sub-client’s identity.
+      exactly matches the authenticated Sub-Client’s identity.
 
 3.3.3.  Downscoped Token Claims
 
-   The AS generates a downscoped token that only contains the
+   The AS generates a Downscoped Token that only contains the
    permissions in the filtered authorization items.  The format of this
    token MAY be a JWT access token conforming to [RFC9068] or any other
-   format at the AS's discretion.  If a JWT downscoped token is used,
+   format at the AS's discretion.  If a JWT Downscoped Token is used,
    the following constraints on its claim values apply:
 
    *sub*
    *REQUIRED.* The owner who grants the consent (copied from the sub
-   claim of the batch token in the subject_token field).
+   claim of the Batch Token in the subject_token field).
 
    *client_id*
    *REQUIRED.* The identifier of the authenticated sub-client.
 
    *aud*
-   *OPTIONAL.* The target RS where the sub-client intends to use the
-   downscoped token.
+   *OPTIONAL.* The target RS where the Sub-Client intends to use the
+   Downscoped Token.
 
    *authorization_details*
    *OPTIONAL.* A JSON array containing the permissions from the filtered
    authorization items.  Since the may_act claim has already been
-   enforced as a delegation constraint by the AS during token exchange,
-   it MAY be omitted in the Downscoped Token.
+   enforced as a designated actor by the AS during token exchange, it
+   MAY be omitted in the Downscoped Token.
 
-   Figure 6 shows a downscoped token issued to the Flight-Agent after
+   Figure 6 shows a Downscoped Token issued to the Flight-Agent after
    token exchange.  Its sub claim identifies the end-user who grants the
    consent, its aud claim points directly to target service
    (https://example.com/flights), and the client_id identifies the
@@ -600,33 +597,33 @@ Table of Contents
 
 4.1.  Intra-Domain Batch Authorization Delegation
 
-   In this case, the user, the leader-client, and the sub-clients all
+   In this case, the user, the Leader-Client, and the Sub-Clients all
    reside within the same trust domain managed by a single AS.  The
    workflow and the examples are already given in Section 3 Figure.1-6.
 
-4.2.  Batch Authorization Delegation with Cross-Domain sub-clients
+4.2.  Batch Authorization Delegation with Cross-Domain Sub-Clients
 
-   In this case, the user and the leader-client belong to the same trust
-   domain, but sub-clients reside in one or more other trust domains.
+   In this case, the user and the Leader-Client belong to the same trust
+   domain, but Sub-Clients reside in one or more other trust domains.
    Each trust domain has its own AS.
 
 4.2.1.  Workflow
 
-   The workflow is a combination of batch authorization delegation and
+   The workflow is a combination of Batch Authorization Delegation and
    identity chaining [I-D.ietf-oauth-identity-chaining].
 
-   Since the sub-client and leader-client reside in different trust
-   domains, the leader-client in Domain A requests a JWT Authorization
+   Since the Sub-Client and Leader-Client reside in different trust
+   domains, the Leader-Client in Domain A requests a JWT Authorization
    Grant (JAG) from the AS in Domain A via token exchange.  The AS
-   matches Domain B with the may_act.aud fields in the batch token to
+   matches Domain B with the may_act.aud fields in the Batch Token to
    filter out one or more authorization items, then generates a JAG
    including only the Domain B-related authorization items.
 
-   The leader-client then presents the received JAG as an assertion to
+   The Leader-Client then presents the received JAG as an assertion to
    the AS in Domain B to obtain an access token, which is subsequently
-   exchanged by the specific sub-client in Domain B for a final
-   downscoped token.  This token exchange ensures that the final
-   downscoped token used by the sub-client only contains the permissions
+   exchanged by the specific Sub-Client in Domain B for a final
+   Downscoped Token.  This token exchange ensures that the final
+   Downscoped Token used by the Sub-Client only contains the permissions
    it required.
 
 +--------++-------------+   +----------++----------+     +----------++----------+
@@ -676,11 +673,11 @@ Table of Contents
 
    Steps (1)-(4) are the same as in Figure 1.
 
-   (a) The leader-client in Domain A exchanges the batch token with the
+   (a) The Leader-Client in Domain A exchanges the Batch Token with the
    AS in Domain A for a JAG that can be used in the AS in Domain B.
 
    (b) The AS of Domain A inspects the may_act.aud fields within the
-   batch token, filters the authorization items down to those matching
+   Batch Token, filters the authorization items down to those matching
    Domain B.
 
    (c) The AS of Domain A issues the JAG including the filtered
@@ -692,19 +689,19 @@ Table of Contents
    Section 2.1 of [I-D.ietf-oauth-identity-chaining] for the trust
    relationship establishment.
 
-   (d) The leader-client in Domain A presents the JAG as an assertion to
+   (d) The Leader-Client in Domain A presents the JAG as an assertion to
    the AS of Domain B.
 
    (e) The AS of Domain B validates the JAG, extracts and encapsulates
    the filtered authorization items in an access token and sends it to
-   the leader-client.  This access token itself constitutes a Domain
-   B-specific batch token, whose authorization items are a subset of
-   those in the original batch token issued in step (4).
+   the Leader-Client.  This access token itself constitutes a Domain
+   B-specific Batch Token, whose authorization items are a subset of
+   those in the original Batch Token issued in step (4).
 
    TODO: many JAGs, when in JAGs, there is no may_acts.  Distribution is
    done before crossing the domain boundary.
 
-   (f) The leader-client sends the access token to the sub-client.
+   (f) The Leader-Client sends the access token to the Sub-Client.
 
    Steps (6)-(9) are the same as in Figure 1.
 
@@ -715,10 +712,10 @@ Table of Contents
 
 4.2.2.1.  Batch Token
 
-   Figure 8 illustrates a batch token payload issued by a leading
+   Figure 8 illustrates a Batch Token payload issued by a leading
    Chinese Financial Alliance's AS in step (4).
 
-   The batch token contains two authorization items: one for searching
+   The Batch Token contains two authorization items: one for searching
    and calculating max availble coupons at Bank_A (benefit_agent), and
    another for the same actions at Bank_B.  The may_act.aud field
    specifies the AS location, while the may_act.sub field specifies the
@@ -747,7 +744,7 @@ Table of Contents
    step (c), specifically filtered for Bank_A's domain.
 
    In accordance with step (b), the Finance Alliance AS inspects the
-   may_act.aud fields of the batch token (Figure 8), extracts and
+   may_act.aud fields of the Batch Token (Figure 8), extracts and
    encapsulates the benefit_bank_a item into the JAG.  Moreover, the
    top-level aud claim targets Bank_A's AS.
 
@@ -764,7 +761,7 @@ Table of Contents
 
    Figure 10 illustrates the cross-domain Access Token payload issued by
    Bank_A's AS in step (e).  As described in step (e), this token
-   constitutes a batch token//TODO no more batch tokens across the
+   constitutes a Batch Token//TODO no more Batch Tokens across the
    domain// localized for Bank_A's domain, so that the aud claim is set
    to Bank_A's AS for further token exchange.
 
@@ -780,7 +777,7 @@ Table of Contents
 
 4.2.2.4.  Downscoped Token
 
-   Figure 11 illustrates the final downscoped token payload issued by
+   Figure 11 illustrates the final Downscoped Token payload issued by
    Bank_A's AS in step (8).
 
    //TODO there is no Batch Token here// When the benefit_agent
@@ -801,13 +798,13 @@ Table of Contents
 
 4.3.  Batch Authorization Delegation with the Cross-Domain User
 
-   In this case, the leader-client and sub-clients belong to the same
+   In this case, the Leader-Client and Sub-Clients belong to the same
    trust domain, while the user resides in another trust domain.  Each
    trust domain has its own AS.
 
 4.3.1.  Workflow
 
-   The workflow is a combination of batch authorization delegation and
+   The workflow is a combination of Batch Authorization Delegation and
    identity assertion [I-D.ietf-oauth-identity-assertion-authz-grant].
 
    The user's client obtains an Identity Assertion from the IdP of
@@ -820,16 +817,15 @@ Table of Contents
 
    The leader-client uses this access token to make a token exchange
    request to the AS of Domain A, including an authorization_details
-   parameter that carries may_act delegation constraints.  The AS
-   verifies that the leader-client has only added delegation constraints
-   without altering the original permissions, and then issues a batch
-   token.
+   parameter that carries may_act designated actors.  The AS verifies
+   that the leader-client has only added designated actors without
+   altering the original permissions, and then issues a Batch Token.
 
-   The remaining steps are the same as the intra-domain batch
-   authorization delegation flow: the leader-client distributes the
-   batch token to sub-clients; each sub-client performs a token exchange
-   to obtain a downscoped token containing only its own permissions and
-   uses the downscoped token to access the RS. ~~~ +--------+
+   The remaining steps are the same as the intra-domain Batch
+   Authorization Delegation flow: the leader-client distributes the
+   Batch Token to sub-clients; each sub-client performs a token exchange
+   to obtain a Downscoped Token containing only its own permissions and
+   uses the Downscoped Token to access the RS. ~~~ +--------+
    +--------++--------++-------------+ +----------+
    +--------+ |User’s | | IdP || AS ||Leader Client| |Sub-Client| |
    RS | |client | |Domain U||Domain A|| Domain A | | Domain A | |Domain
@@ -873,20 +869,20 @@ Table of Contents
 
    (f) Domain A's AS issues an access token to the user's client.
 
-   (g) The user's client sends a request to the leader-client, including
+   (g) The user's client sends a request to the Leader-Client, including
    the access token.
 
-   (h) The leader-client orchestrates the task and assigns different
-   permissions to different sub-clients.  It then initiates a token
+   (h) The Leader-Client orchestrates the task and assigns different
+   permissions to different Sub-Clients.  It then initiates a token
    exchange request to Domain A's AS.  This request includes the
    authorization_details parameter, which contains the original content
    of authorization_details from step (c) along with the may_act claims
-   as delegation constraints.
+   as designated actors.
 
    (5) Domain A's AS compares the authorization_details in the request
-   with the original ones, verifies that the leader-client has only
-   added delegation constraints without altering the original
-   permissions, and then issues a batch token.
+   with the original ones, verifies that the Leader-Client has only
+   added designated actors without altering the original permissions,
+   and then issues a Batch Token.
 
    Steps (6)-(9) are the same as in Figure 1.
 
@@ -902,7 +898,7 @@ Table of Contents
 
    This access token is issued by Domain A's AS to the user's client in
    step (f) and then delivered to the leader-client in step (g).  It
-   carries the original permissions without any delegation constraints.
+   carries the original permissions without any designated actors.
 
    text { "iss": "https://as.domain_a.example", "sub":
    "user@domain_u.example", "aud": "https://as.domain_a.example",
@@ -933,12 +929,12 @@ Table of Contents
    hotels"],"may_act":{"sub":"hotel_agent@domain_a.example.com"}}] ```
    _Figure 14: Token Exchange Request for Batch Token_
 
-   The AS verifies that the leader-client has solely appended delegation
-   constraints without modifying the original permissions, and then
-   issues a batch token as shown in Figure 3.  The subsequent steps,
-   including distribution of the batch token to sub-clients, token
-   exchange initiated by each sub-client, and issuance of downscoped
-   tokens as shown in Figure 6, are identical to the intra-domain flow.
+   The AS verifies that the leader-client has solely appended designated
+   actors without modifying the original permissions, and then issues a
+   Batch Token as shown in Figure 3.  The subsequent steps, including
+   distribution of the Batch Token to sub-clients, token exchange
+   initiated by each sub-client, and issuance of Downscoped Tokens as
+   shown in Figure 6, are identical to the intra-domain flow.
 
    The handling of verification failures (e.g., rejection or re-consent)
    is implementation-specific and out of scope for this specification.
