@@ -65,7 +65,7 @@ This document describes a mechanism for batch authorization delegation, which en
 
 Due to the rise of collaborative service ecosystems and AI Agents, resource access patterns are shifting from a traditional, linear, single client-server model to complex multi-entity orchestration. A task may consists of a batch of sub-tasks, which may require authorizations to different resources. Although a human user can request authorization for each resource, this work is usually carried out by a principal personal assistant AI Agent. While authorizing total privileges to the personal assistant agent is doable, it risks granting excessive privileges to it, thus oppose to the minimal privilege principle. On the other hand, if the principal agent request human authorization for every resource, it will reduce automated efficiency.
 
-Therefore, the core challenge is to request access permissions to a batch of resources from the user at once, while precisely delegating fine-grained privileges to the respective sub-agent responsible for executing each sub-task. 
+Therefore, the core challenge is to request access permissions to a batch of resources from the user at once, while precisely delegating fine-grained privileges to the respective sub-agent responsible for executing each sub-task.
 
 Certain use cases include:
 
