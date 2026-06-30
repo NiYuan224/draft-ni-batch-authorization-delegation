@@ -5,7 +5,7 @@
 Network Working Group                                              Y. Ni
 Internet-Draft                                                 C. P. Liu
 Intended status: Informational                                    Huawei
-Expires: 31 December 2026                                   29 June 2026
+Expires: 1 January 2027                                     30 June 2026
 
 
                      Batch Authorization Delegation
@@ -46,7 +46,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 31 December 2026.
+   This Internet-Draft will expire on 1 January 2027.
 
 Copyright Notice
 
@@ -232,9 +232,9 @@ Table of Contents
    encapsulated in the rich authorization request and the issued Batch
    Token.
 
-   Batch Token: A JWT issued by the AS to the Leader-Client.  It
-   encapsulates multiple Authorization Items, enabling subsequent
-   delegation.
+   Batch Token: A special JWT access token issued by the AS to the
+   Leader-Client.  It encapsulates multiple Authorization Items,
+   enabling subsequent delegation.
 
    Designated Actor: The may_act claim within an authorization item that
    specifies the Sub-Client authorized to exercise that permission.
@@ -275,44 +275,12 @@ Table of Contents
    a Leader-Client MAY coordinate several Sub-Clients.  For simplicity,
    only one Sub-Client is shown in Figure 1.
 
-   +----++-------------+    +----+        +----------++----+
-   |User||Leader-Client|    | AS |        |Sub-Client|| RS |
-   +-+--++------+------+    +--+-+        +--------+-++--+-+
-     |          |(1)RAR        |                   |     |
-     |          |(with may_act)|                   |     |
-     |          +-------------->                   |     |
-     |          |(2)Ask for    |                   |     |
-     |          | consent      |                   |     |
-     <----------+--------------+                   |     |
-     |(3)Consent|              |                   |     |
-     +----------+-------------->                   |     |
-     |          |(4)Issue      |                   |     |
-     |          | Batch Token  |                   |     |
-     |          <--------------+                   |     |
-     |          |(5)Distribute |                   |     |
-     |          | Batch Token  |                   |     |
-     |          +--------------+------------------->     |
-     |          |              |(6)Token exchange  |     |
-     |          |              |   Request         |     |
-     |          |              <-------------------+     |
-     |          |              | [Batch Token]     |     |
-     |          |              |                   |     |
-     |          |              |(7)Verify identity |     |
-     |          |              +-+ &Downscope      |     |
-     |          |              | |                 |     |
-     |          |              <-+                 |     |
-     |          |              |(8)Downscoped Token|     |
-     |          |              +------------------->     |
-     |          |              |(9)access          |     |
-     |          |              |                   +----->
-     |          |              |                   |     |
-
    _Figure 1: Batch Authorization Delegation Flow_
 
    (1) The Leader-Client sends a rich authorization request containing
    multiple authorization items to the AS.  Each authorization item
-   includes a fine-grained permission (described by several claims
-   defined in [RFC9396], e.g., type, action, location, etc.) and a
+   includes a fine-grained permission (described by several fields
+   defined in [RFC9396], e.g., type, actions, locations, etc.) and a
    designated actor that uses the may_act claim to designate which Sub-
    Client is authorized for the permission.
 

@@ -1053,7 +1053,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Ni &amp; Liu</td>
-<td class="center">Expires 31 December 2026</td>
+<td class="center">Expires 1 January 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1066,12 +1066,12 @@ svg {
 <dd class="internet-draft">draft-ni-batch-authorization-delegation-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-06-29" class="published">29 June 2026</time>
+<time datetime="2026-06-30" class="published">30 June 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-12-31">31 December 2026</time></dd>
+<dd class="expires"><time datetime="2027-01-01">1 January 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1120,7 +1120,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 31 December 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 1 January 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1298,8 +1298,8 @@ svg {
 <p id="section-2-5">Sub-Client:  The entity that is subordinate to the Leader-Client and redeem access tokens to Resource Servers (RS) to perform specific sub-tasks. The Sub-Client exchanges the received Batch Token for a downscoped access token with partial privileges. Sub-clients could be sub-agents and microservices.<a href="#section-2-5" class="pilcrow">¶</a></p>
 <p id="section-2-6">Batch Authorization Delegation: A mechanism proposed in this document that a Leader-Client requests permissions in a batch and delegates them to its subordinate Sub-Clients.<a href="#section-2-6" class="pilcrow">¶</a></p>
 <p id="section-2-7">Authorization Item: An authorization item defines one permission per one corresponding designated actor. There may be multiple Authorization Items within one <code>authorization_details</code>, which is later encapsulated in the rich authorization request and the issued Batch Token.<a href="#section-2-7" class="pilcrow">¶</a></p>
-<p id="section-2-8">Batch Token: A JWT issued by the AS to the Leader-Client. It encapsulates multiple Authorization Items, enabling subsequent delegation.<a href="#section-2-8" class="pilcrow">¶</a></p>
-<p id="section-2-9">Designated Actor: The may_act claim within an authorization item that specifies the Sub-Client authorized to exercise that permission.<a href="#section-2-9" class="pilcrow">¶</a></p>
+<p id="section-2-8">Batch Token: A special JWT access token issued by the AS to the Leader-Client. It encapsulates multiple Authorization Items, enabling subsequent delegation.<a href="#section-2-8" class="pilcrow">¶</a></p>
+<p id="section-2-9">Designated Actor: The <code>may_act</code> claim within an authorization item that specifies the Sub-Client authorized to exercise that permission.<a href="#section-2-9" class="pilcrow">¶</a></p>
 <p id="section-2-10">Downscoped Token: The access token issued to a Sub-Client as a result of token exchange, which is to be used at the RS to access protected resources. It contains only a subset of authorization items whose designated actors match the requesting Sub-Client's identity.<a href="#section-2-10" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1318,54 +1318,19 @@ svg {
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-overview" class="section-name selfRef">Overview</a>
         </h3>
 <p id="section-3.1-1">Figure 1 shows the flow of Batch Authorization Delegation. Note that a Leader-Client MAY coordinate several Sub-Clients. For simplicity, only one Sub-Client is shown in Figure 1.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3.1-2">
-<pre>
-+----++-------------+    +----+        +----------++----+
-|User||Leader-Client|    | AS |        |Sub-Client|| RS |
-+-+--++------+------+    +--+-+        +--------+-++--+-+
-  |          |(1)RAR        |                   |     |
-  |          |(with may_act)|                   |     |
-  |          +--------------&gt;                   |     |
-  |          |(2)Ask for    |                   |     |
-  |          | consent      |                   |     |
-  &lt;----------+--------------+                   |     |
-  |(3)Consent|              |                   |     |
-  +----------+--------------&gt;                   |     |
-  |          |(4)Issue      |                   |     |
-  |          | Batch Token  |                   |     |
-  |          &lt;--------------+                   |     |
-  |          |(5)Distribute |                   |     |
-  |          | Batch Token  |                   |     |
-  |          +--------------+-------------------&gt;     |
-  |          |              |(6)Token exchange  |     |
-  |          |              |   Request         |     |
-  |          |              &lt;-------------------+     |
-  |          |              | [Batch Token]     |     |
-  |          |              |                   |     |
-  |          |              |(7)Verify identity |     |
-  |          |              +-+ &amp;Downscope      |     |
-  |          |              | |                 |     |
-  |          |              &lt;-+                 |     |
-  |          |              |(8)Downscoped Token|     |
-  |          |              +-------------------&gt;     |
-  |          |              |(9)access          |     |
-  |          |              |                   +-----&gt;
-  |          |              |                   |     |
-</pre><a href="#section-3.1-2" class="pilcrow">¶</a>
-</div>
-<p id="section-3.1-3"><em>Figure 1: Batch Authorization Delegation Flow</em><a href="#section-3.1-3" class="pilcrow">¶</a></p>
-<p id="section-3.1-4">(1) The Leader-Client sends a rich authorization request containing multiple authorization items to the AS. Each authorization item includes a fine-grained permission (described by several claims defined in <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>, e.g., type, action, location, etc.) and a designated actor that uses the may_act claim to designate which Sub-Client is authorized for the permission.<a href="#section-3.1-4" class="pilcrow">¶</a></p>
-<p id="section-3.1-5">(2) After receiving the rich authorization request, the AS presents all authorization items in the request to the user for consent.<a href="#section-3.1-5" class="pilcrow">¶</a></p>
-<p id="section-3.1-6">(3) The user confirms all or some of the authorization items and sends the result back to the AS.<a href="#section-3.1-6" class="pilcrow">¶</a></p>
-<p id="section-3.1-7">(4) The AS generates a Batch Token, which encapsulates the authorization items confirmed by the user and issues it to the Leader-Client.<a href="#section-3.1-7" class="pilcrow">¶</a></p>
-<p id="section-3.1-8">(5) The Leader-Client distributes the Batch Token to the Sub-Client.<a href="#section-3.1-8" class="pilcrow">¶</a></p>
-<p id="section-3.1-9">(6) The Sub-Client initiates a token exchange request to the AS to exchange the Batch Token to a Downscoped Token.<a href="#section-3.1-9" class="pilcrow">¶</a></p>
-<p id="section-3.1-10">(7) The AS verifies the identity of Sub-Client against the designated actors in the Batch Token to filter the authorization items corresponding to the Sub-Client.<a href="#section-3.1-10" class="pilcrow">¶</a></p>
-<p id="section-3.1-11">(8) The AS generates a Downscoped Token that only contains the permissions in the filtered authorization items and send it to the Sub-Client.<a href="#section-3.1-11" class="pilcrow">¶</a></p>
-<p id="section-3.1-12">(9) The Sub-Client accesses the RS with the Downscoped Token.<a href="#section-3.1-12" class="pilcrow">¶</a></p>
-<p id="section-3.1-13">This mechanism offers two key advantages.
+<p id="section-3.1-2"><em>Figure 1: Batch Authorization Delegation Flow</em><a href="#section-3.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.1-3">(1) The Leader-Client sends a rich authorization request containing multiple authorization items to the AS. Each authorization item includes a fine-grained permission (described by several fields defined in <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>, e.g., <code>type</code>, <code>actions</code>, <code>locations</code>, etc.) and a designated actor that uses the <code>may_act</code> claim to designate which Sub-Client is authorized for the permission.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.1-4">(2) After receiving the rich authorization request, the AS presents all authorization items in the request to the user for consent.<a href="#section-3.1-4" class="pilcrow">¶</a></p>
+<p id="section-3.1-5">(3) The user confirms all or some of the authorization items and sends the result back to the AS.<a href="#section-3.1-5" class="pilcrow">¶</a></p>
+<p id="section-3.1-6">(4) The AS generates a Batch Token, which encapsulates the authorization items confirmed by the user and issues it to the Leader-Client.<a href="#section-3.1-6" class="pilcrow">¶</a></p>
+<p id="section-3.1-7">(5) The Leader-Client distributes the Batch Token to the Sub-Client.<a href="#section-3.1-7" class="pilcrow">¶</a></p>
+<p id="section-3.1-8">(6) The Sub-Client initiates a token exchange request to the AS to exchange the Batch Token to a Downscoped Token.<a href="#section-3.1-8" class="pilcrow">¶</a></p>
+<p id="section-3.1-9">(7) The AS verifies the identity of Sub-Client against the designated actors in the Batch Token to filter the authorization items corresponding to the Sub-Client.<a href="#section-3.1-9" class="pilcrow">¶</a></p>
+<p id="section-3.1-10">(8) The AS generates a Downscoped Token that only contains the permissions in the filtered authorization items and send it to the Sub-Client.<a href="#section-3.1-10" class="pilcrow">¶</a></p>
+<p id="section-3.1-11">(9) The Sub-Client accesses the RS with the Downscoped Token.<a href="#section-3.1-11" class="pilcrow">¶</a></p>
+<p id="section-3.1-12">This mechanism offers two key advantages.
 * First, it fully reuses existing standards, combining RAR's flexible permission definitions with Token Exchange's delegation semantics by simply moving the <code>may_act</code> claim from the entity level down to individual authorization items without altering the claim's original meaning. This slight change effectively fulfills the expression, partition, and delegation purpose of fine-grained structured permissions across multiple collaborating entities.
-* Second, the final Downscoped Token introduces no new claims or structural changes. Since RS deployments are often numerous and costly to upgrade, this design ensures zero modification to existing RSs, enabling smooth adoption with minimal reconfiguration.<a href="#section-3.1-13" class="pilcrow">¶</a></p>
+* Second, the final Downscoped Token introduces no new claims or structural changes. Since RS deployments are often numerous and costly to upgrade, this design ensures zero modification to existing RSs, enabling smooth adoption with minimal reconfiguration.<a href="#section-3.1-12" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="batch-token">
