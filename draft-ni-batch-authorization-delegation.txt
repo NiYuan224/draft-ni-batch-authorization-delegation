@@ -114,8 +114,8 @@ Table of Contents
 
    Certain use cases include:
 
-   (1) China UnionPay APOP (Agentic Payment Open Protocol) Framework: A
-   central agent from China UnionPay coordinates with multiple bank-
+   *(1) China UnionPay APOP (Agentic Payment Open Protocol) Framework:*
+   A central agent from China UnionPay coordinates with multiple bank-
    specific sub-agents to calculate the best user discounts.  The
    central agent requests a one-time batch authorization for all linked
    accounts from the user, and precisely delegates privileges so that
@@ -124,7 +124,7 @@ Table of Contents
    spying on another bank's account existence, financial balances, or
    transaction histories.
 
-   (2) Office Agent Orchestration: An office agent coordinates the
+   *(2) Office Agent Orchestration:* An office agent coordinates the
    generation of a market insight report slide by deploying three
    specialized sub-agents in parallel based on a one-time batch approval
    from the user.  It strictly delegates privileges to each sub-agent:
@@ -144,21 +144,21 @@ Table of Contents
    foundation for authorization, they lack native support for efficient,
    secure delegation for a batch of coordinated tasks:
 
-   (1) OAuth 2.0[RFC6749]: The OAuth 2.0 authorization framework enables
-   a client to obtain limited access to protected resources on behalf of
-   a resource owner.  However, in a multi-entity collaboration scenario,
-   this requires each entity to independently initiate its own
+   *(1) OAuth 2.0[RFC6749]:* The OAuth 2.0 authorization framework
+   enables a client to obtain limited access to protected resources on
+   behalf of a resource owner.  However, in a multi-entity collaboration
+   scenario, this requires each entity to independently initiate its own
    authorization flow.  This results in multiple user interactions,
    introducing significant end-to-end latency and severe user fatigue.
 
-   (2) OAuth 2.0 Token Exchange[RFC8693]: Token Exchange defines a
+   *(2) OAuth 2.0 Token Exchange[RFC8693]:* Token Exchange defines a
    delegation mechanism and introduces the may_act claim to authorize an
    actor to act on behalf of a subject.  However, the may_act claim only
    determines who is authorized to act.  It does not provide a way to
    link or specify which subset of permissions are being delegated to
    this actor.
 
-   (3) OAuth 2.0 Rich Authorization Request (RAR) [RFC9396]: RAR
+   *(3) OAuth 2.0 Rich Authorization Request (RAR) [RFC9396]:* RAR
    introduces a new parameter authorization_details to allow clients to
    express their fine-grained authorization requirements using the JSON
    structures.  Such a parameter allows several fine-grained permissions
@@ -452,7 +452,7 @@ Table of Contents
 
    Subsequently, the AS generates a Batch Token and returns it to the
    Leader-Client in the Token response.  The Batch Token is a JWT access
-   token conforming to [RFC9068], with the following claims and values:
+   token conforming to [RFC9068], with the following claims and values.
 
 3.2.3.  Batch Token Claims
 
@@ -559,7 +559,7 @@ Table of Contents
    Agent.  In this request, the Flight-Agent provides the received Batch
    Token from Figure 3 as the subject_token.  To satisfy the requirement
    for client authentication, the Flight-Agent provides its own identity
-   token as an actor_token (detailed in Figure 5).
+   token as an actor_token.
 
     POST /as/token.oauth2 HTTP/1.1
     Host: as.example.com
@@ -575,6 +575,8 @@ Table of Contents
     &actor_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
     ~~~
    *Figure 4: Token Exchange Request*
+
+   The claims of the `actor_token` are detailed in Figure 5.
 
    { "aud":"https://as.example.com", "iss":"https://original-
    issuer.example.net", "exp": 1778400000,
