@@ -144,7 +144,7 @@ Figure 1 shows the flow of Batch Authorization Delegation. Note that a Leader-Cl
   |          |              | exchange     |        |
   |          |              | request      |        |
   |          |              <--------------+        |
-  |          |              | [Batch Token]|        |
+  |          |              | <Batch Token>|        |
   |          |              |              |        |
   |          |              |(7)Verify     |        |
   |          |              +-+ identity   |        |
@@ -333,7 +333,7 @@ Figure 4 shows a token exchange request initiated by the Flight-Agent. In this r
  Content-Type: application/x-www-form-urlencoded
 
  grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange
- &subject_token=[Encoded Batch Token]
+ &subject_token=<Encoded Batch Token>
  &subject_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
  &actor_token=eyJhb...
  &actor_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
