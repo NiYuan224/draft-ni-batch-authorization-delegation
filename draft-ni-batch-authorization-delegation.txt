@@ -570,14 +570,19 @@ Table of Contents
     &subject_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
     &actor_token=eyJhb...
     &actor_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
-    ~~~
-   *Figure 4: Token Exchange Request*
 
-   The claims of the `actor_token` are detailed in Figure 5.
+   _Figure 4: Token Exchange Request_
 
-   { "aud":"https://as.example.com", "iss":"https://original-
-   issuer.example.net", "exp": 1778400000,
-   "sub":"flight_agent@example.net" } ~~~ _Figure 5: Actor Token Claims_
+   The claims of the actor_token are detailed in Figure 5.
+
+   {
+     "aud":"https://as.example.com",
+     "iss":"https://original-issuer.example.net",
+     "exp": 1778400000,
+     "sub":"flight_agent@example.net"
+   }
+
+   _Figure 5: Actor Token Claims_
 
 3.3.2.  Processing Rules of the Authorization Server
 
