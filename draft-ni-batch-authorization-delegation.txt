@@ -69,7 +69,7 @@ Table of Contents
    3.  Batch Authorization Delegation
      3.1.  Overview
      3.2.  Batch Token
-       3.2.1.  RAR Extension with the may_act claim
+       3.2.1.  RAR Extension with the may_act field
        3.2.2.  Requesting and Issuing a Batch Token
        3.2.3.  Batch Token Claims
      3.3.  Downscoped Token
@@ -77,7 +77,7 @@ Table of Contents
        3.3.2.  Processing Rules of the Authorization Server
        3.3.3.  Downscoped Token Claims
    4.  Derivative Scenarios
-     4.1.  Intra-Domain Batch Authorization Delegation
+     4.1.  Single-Domain Batch Authorization Delegation
      4.2.  Batch Authorization Delegation with Cross-Domain
            Sub-Clients
        4.2.1.  Workflow
@@ -180,14 +180,14 @@ Table of Contents
 
    To bridge this gap, this document adds the delegation information
    directly to the multiple fine-grained permissions in the RAR.  By
-   extending the authorization_details with a may_act claim, a client
+   extending the authorization_details with a may_act field, a client
    can request a comprehensive set of permissions, each of which specify
    which actor is authorized to exercise such privilege.  The
    Authorization Server (AS) then responds this request with a Batch
    Token, which contains the above permissions and their corresponding
    designated actors.  When an actor performs a token exchange using the
    Batch Token, the AS applies a downscoping strategy, filtering the
-   permissions based on the consistency of the may_act claim and actor's
+   permissions based on the consistency of the may_act field and actor's
    identity.  This ensures a convenient authorization experience for the
    user while strictly enforcing the principle of minimal privilege
    across multiple collaborating entities.
@@ -236,7 +236,7 @@ Table of Contents
    Leader-Client.  It encapsulates multiple Authorization Items,
    enabling subsequent delegation.
 
-   Designated Actor: The may_act claim within an authorization item that
+   Designated Actor: The may_act field within an authorization item that
    specifies the Sub-Client authorized to exercise that permission.
 
    Downscoped Token: The access token issued to a Sub-Client as a result
@@ -273,7 +273,19 @@ Table of Contents
 
    Figure 1 shows the flow of Batch Authorization Delegation.  Note that
    a Leader-Client MAY coordinate several Sub-Clients.  For simplicity,
-   only one Sub-Client is shown in Figure 1.
+   only one Sub-Client is shown in Figure 1. ~~~ +----++-------------+
+   +----+ +----------++----+ |User||Leader-Client| | AS | |Sub-Client||
+   RS | +-+--++------+------+ +--+-+
+   +-----+----++--+-+ | |(1)RAR | | | | |(with may_act)| | | |
+   +--------------> | | | |(2)Ask for | | | | | consent | | |
+   <----------+--------------+ | | |(3)Consent| | | |
+   +----------+--------------> | | | |(4)Issue | | | | | Batch
+   Token | | | | <--------------+ | | | |(5)Distribute | | | | | Batch
+   Token | | | | |--------------+--------------> | | | |(6)Token | | | | |
+   exchange | | | | | request | | | | <--------------+ | | | | [Batch
+   Token]| | | | | | | | | |(7)Verify | | | | +-+ identity | | | | | |
+   &Downscope | | | | <-+ | | | | |(8)Downscoped | | | | | Token | | | |
+   +--------------> | | | | |(9)access | | | |--------> | | | | | ~~~
 
    _Figure 1: Batch Authorization Delegation Flow_
 
@@ -281,7 +293,7 @@ Table of Contents
    multiple authorization items to the AS.  Each authorization item
    includes a fine-grained permission (described by several fields
    defined in [RFC9396], e.g., type, actions, locations, etc.) and a
-   designated actor that uses the may_act claim to designate which Sub-
+   designated actor that uses the may_act field. to designate which Sub-
    Client is authorized for the permission.
 
    (2) After receiving the rich authorization request, the AS presents
@@ -309,22 +321,25 @@ Table of Contents
 
    (9) The Sub-Client accesses the RS with the Downscoped Token.
 
-   This mechanism offers two key advantages. * First, it fully reuses
-   existing standards, combining RAR's flexible permission definitions
-   with Token Exchange's delegation semantics by simply moving the
-   may_act claim from the entity level down to individual authorization
-   items without altering the claim's original meaning.  This slight
-   change effectively fulfills the expression, partition, and delegation
-   purpose of fine-grained structured permissions across multiple
-   collaborating entities. * Second, the final Downscoped Token
-   introduces no new claims or structural changes.  Since RS deployments
-   are often numerous and costly to upgrade, this design ensures zero
-   modification to existing RSs, enabling smooth adoption with minimal
-   reconfiguration.
+   This mechanism offers two key advantages.
+
+   *  First, it fully reuses existing standards, combining RAR's
+      flexible permission definitions with Token Exchange's delegation
+      semantics by simply moving the may_act claim from the entity level
+      down to individual authorization items without altering its
+      original meaning.  This slight change effectively fulfills the
+      expression, partition, and delegation purpose of fine-grained
+      structured permissions across multiple collaborating entities.
+
+   *  Second, the final Downscoped Token introduces no new claims or
+      structural changes.  Since RS deployments are often numerous and
+      costly to upgrade, this design ensures zero modification to
+      existing RSs, enabling smooth adoption with minimal
+      reconfiguration.
 
 3.2.  Batch Token
 
-3.2.1.  RAR Extension with the may_act claim
+3.2.1.  RAR Extension with the may_act field
 
    In [RFC8693], the may_act is a top-level claim, which makes a
    statement of one party is authorized to become the actor and act on
@@ -333,7 +348,7 @@ Table of Contents
 
    In contrast, this document leverages authorization_details defined in
    [RFC9396] to describe multiple authorization items, each of which
-   contains a permission and a nested may_act claim serving as a
+   contains a permission and a nested may_act field serving as a
    designated actor.  This helps to define who is authorized to perform
    which permission, thus changing the entity-level delegation into an
    item-level delegation.
@@ -353,32 +368,46 @@ Table of Contents
    *aud*
    *OPTIONAL.* A string that identifies the AS of the trust domain where
    the Sub-Client resides.  If the Sub-Client and the Leader-Client are
-   located in different Trust Domains, this claim MUST be present to
-   specify the target AS.  If this claim is omitted, it MUST be assumed
+   located in different Trust Domains, this field MUST be present to
+   specify the target AS.  If this field is omitted, it MUST be assumed
    that the Sub-Client and the Leader-Client reside in the same trust
    domain.
 
    Figure 2 shows an example of authorization_details containing the
-   may_act claim.  It represents a typical travel management scenario in
+   may_act field.  It represents a typical travel management scenario in
    which the Leader-Client requests two distinct authorization items: a
    flight booking permission delegated to the Flight-Agent, and a hotel
    reservation permission delegated to the Hotel-Agent.  Both Sub-
    Clients are located in the same trust domain as the Leader-Client so
    that the may_act.aud field is omitted.  This structure demonstrates
-   how multiple permissions can be bound to different actors within an
-   authorization request.
+   how multiple permissions can be bound to different actors within a
+   single authorization request.
 
-   text [ { "type": "flight_booking", "actions": ["search", "book"],
-   "locations": ["https://example.com/flights"], "may_act": { "sub":
-   "flight_agent@example.com" } }, { "type": "hotel_reservation",
-   "actions": ["search", "book"], "locations": ["https://example.com/
-   hotels"], "may_act": { "sub": "hotel_agent@example.com" } } ]
-   _Figure 2: authorization_details with the may_act claim_
+   [
+     {
+       "type": "flight_booking",
+       "actions": ["search", "book"],
+       "locations": ["https://example.com/flights"],
+       "may_act": {
+           "sub": "flight_agent@example.com"
+       }
+     },
+     {
+       "type": "hotel_reservation",
+       "actions": ["search", "book"],
+       "locations": ["https://example.com/hotels"],
+       "may_act": {
+           "sub": "hotel_agent@example.com"
+       }
+     }
+   ]
+
+   _Figure 2: authorization_details with the may_act field_
 
 3.2.2.  Requesting and Issuing a Batch Token
 
    The lead-client sends an authorization request that contains
-   authorization_details with may_act claims to the AS.  The AS MUST ask
+   authorization_details with may_act fields to the AS.  The AS MUST ask
    the user for consent to the requested authorization items.  The
    general processing rules of the AS defined in [RFC9396] apply, with
    the following extensions:
@@ -397,7 +426,7 @@ Table of Contents
       -  Grant only a subset of the authorization items.
 
    *  The AS MUST record the consented authorization items, including
-      the may_act claims, as part of a grant (e.g., the authorization
+      the may_act fields, as part of a grant (e.g., the authorization
       code).
 
    After user consent, the AS issues an authorization code as a grant to
@@ -441,16 +470,35 @@ Table of Contents
    is set to the AS itself, as the Batch Token will be presented back to
    the AS for further token exchange.
 
-   text { "iss": "https://as.example.com", "sub": "user@example.com",
-   "aud": "https://as.example.com", "client_id":
-   "travel_assistant@example.com", "exp": 1777881600, "iat": 1777795200,
-   "jti": "batch-token-8b4729cc-32e4-4370-8cf0-5796154d1296",
-   "authorization_details": [ { "type": "flight_booking", "actions":
-   ["search", "book"], "locations": ["https://example.com/flights"],
-   "may_act": { "sub": "flight_agent@example.com" } }, { "type":
-   "hotel_reservation", "actions": ["search", "book"], "locations":
-   ["https://example.com/hotels"], "may_act": { "sub":
-   "hotel_agent@example.com" } } ] } _Figure 3: Batch Token JWT Payload_
+   {
+     "iss": "https://as.example.com",
+     "sub": "user@example.com",
+     "aud": "https://as.example.com",
+     "client_id": "travel_assistant@example.com",
+     "exp": 1777881600,
+     "iat": 1777795200,
+     "jti": "batch-token-8b4729cc-32e4-4370-8cf0-5796154d1296",
+     "authorization_details": [
+       {
+         "type": "flight_booking",
+         "actions": ["search", "book"],
+         "locations": ["https://example.com/flights"],
+         "may_act": {
+           "sub": "flight_agent@example.com"
+         }
+       },
+       {
+         "type": "hotel_reservation",
+         "actions": ["search", "book"],
+         "locations": ["https://example.com/hotels"],
+         "may_act": {
+           "sub": "hotel_agent@example.com"
+         }
+       }
+     ]
+   }
+
+   _Figure 3: Batch Token JWT Payload_
 
 3.3.  Downscoped Token
 
@@ -459,9 +507,17 @@ Table of Contents
    When a Sub-Client receives a Batch Token from the Leader-Client, it
    MUST perform a token exchange request to the AS to obtain a
    Downscoped Token.  The Batch Token MUST NOT be used directly to the
-   Resource Server to redeem resources by anyone.  Within the token
-   exchange request, the parameters described in section 2.1 of
-   [RFC8693] apply with the following additional requirements:
+   RS to redeem resources by anyone.  Within the token exchange request,
+   the parameters described in section 2.1 of [RFC8693] apply with the
+   following additional requirements:
+
+   *resource*
+   *OPTIONAL.* The URI of the target RS where the Sub-Client intends to
+   use the Downscoped Token.
+
+   *audience*
+   *OPTIONAL.* The well-known/logical name of the target RS where the
+   Sub-Client intends to use the Downscoped Token.
 
    *subject_token*
    *REQUIRED.* The Batch Token received from the Leader-Client.
@@ -490,22 +546,24 @@ Table of Contents
    for client authentication, the Flight-Agent provides its own identity
    token as an actor_token (detailed in Figure 5).
 
-   ```text POST /as/token.oauth2 HTTP/1.1 Host: as.example.com Content-
-   Type: application/x-www-form-urlencoded
+    POST /as/token.oauth2 HTTP/1.1
+    Host: as.example.com
+    Content-Type: application/x-www-form-urlencoded
 
-   grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange
-   &subject_token=[Encoded Batch Token]
-   &subject_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
-   &actor_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwc
-   zovL2FzLmV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9vcmlnaW5hbC1pc3N1ZXIu
-   ZXhhbXBsZS5uZXQiLCJleHAiOjE3Nzg0MDAwMDAsInN1YiI6ImZsaWdodF9hZ2VudEB
-   leGFtcGxlLm5ldCJ9.lcg7QKoGrsD_TICwHJnb0_Fsd5FlocXXXQhjYi2-hC4
-   &actor_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt ```
-   _Figure 4: Token Exchange Request_
+    grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange
+    &subject_token=[Encoded Batch Token]
+    &subject_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
+    &actor_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwc
+    zovL2FzLmV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9vcmlnaW5hbC1pc3N1ZXIu
+    ZXhhbXBsZS5uZXQiLCJleHAiOjE3Nzg0MDAwMDAsInN1YiI6ImZsaWdodF9hZ2VudEB
+    leGFtcGxlLm5ldCJ9.lcg7QKoGrsD_TICwHJnb0_Fsd5FlocXXXQhjYi2-hC4
+    &actor_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
+    ~~~
+   *Figure 4: Token Exchange Request*
 
-   text { "aud":"https://as.example.com", "iss":"https://original-
+   { "aud":"https://as.example.com", "iss":"https://original-
    issuer.example.net", "exp": 1778400000,
-   "sub":"flight_agent@example.net" } _Figure 5: Actor Token Claims_
+   "sub":"flight_agent@example.net" } ~~~ _Figure 5: Actor Token Claims_
 
 3.3.2.  Processing Rules of the Authorization Server
 
@@ -527,7 +585,7 @@ Table of Contents
 
    *sub*
    *REQUIRED.* The owner who grants the consent (copied from the sub
-   claim of the Batch Token in the subject_token field).
+   claim of the Batch Token in the subject_token parameter).
 
    *client_id*
    *REQUIRED.* The identifier of the authenticated sub-client.
@@ -538,7 +596,7 @@ Table of Contents
 
    *authorization_details*
    *OPTIONAL.* A JSON array containing the permissions from the filtered
-   authorization items.  Since the may_act claim has already been
+   authorization items.  Since the may_act field has already been
    enforced as a designated actor by the AS during token exchange, it
    MAY be omitted in the Downscoped Token.
 
@@ -547,27 +605,55 @@ Table of Contents
    consent, its aud claim points directly to target service
    (https://example.com/flights), and the client_id identifies the
    Flight-Agent.  The authorization_details array contains only the
-   flight-booking permission, with the may_act claim removed.
+   flight-booking permission, with the may_act field removed.
 
-   text { "iss": "https://as.example.com", "sub": "user@example.com",
-   "aud": "https://example.com/flights", "client_id":
-   "flight_agent@example.com", "exp": 1777881600, "iat": 1777795210,
-   "jti": "downscoped-token-7c8d9a2e-4b12-4a3f-8e6c-2f9a8b3c7d5e",
-   "authorization_details": [ { "type": "flight_booking", "actions":
-   ["search", "book"], "locations": ["https://example.com/flights"], } ]
-   } _Figure 6: Downscoped Token Payload_
+   {
+     "iss": "https://as.example.com",
+     "sub": "user@example.com",
+     "aud": "https://example.com/flights",
+     "client_id": "flight_agent@example.com",
+     "exp": 1777881600,
+     "iat": 1777795210,
+     "jti": "downscoped-token-7c8d9a2e-4b12-4a3f-8e6c-2f9a8b3c7d5e",
+     "authorization_details": [
+       {
+         "type": "flight_booking",
+         "actions": ["search", "book"],
+         "locations": ["https://example.com/flights"],
+       }
+     ]
+   }
+
+   _Figure 6: Downscoped Token Payload_
 
 4.  Derivative Scenarios
 
    Until now, the main procedures of the Batch Authorization Delegation
    is done.  There are some more derivative scenarios with detailed
-   additional steps and considerations, including .... TODO
+   additional steps and considerations, including:
 
-4.1.  Intra-Domain Batch Authorization Delegation
+   *  Single-Domain Batch Authorization Delegation: The user, Leader-
+      Client, and Sub-Clients all reside within the same trust domain
+      managed by a single AS.
 
-   In this case, the user, the Leader-Client, and the Sub-Clients all
-   reside within the same trust domain managed by a single AS.  The
-   workflow and the examples are already given in Section 3 Figure.1-6.
+   *  Batch Authorization Delegation with Cross-Domain Sub-Clients: The
+      user and Leader-Client belong to the same trust domain, but Sub-
+      Clients reside in one or more other trust domains, each managed by
+      its own AS.
+
+   *  Batch Authorization Delegation with a Cross-Domain User: The
+      Leader-Client and Sub-Clients belong to the same trust domain,
+      while the user resides in another trust domain, each managed by
+      its own AS.
+
+   *  Combined Cross-Domain Scenario: The user, Leader-Client, and Sub-
+      Clients may each reside in different trust domains, each managed
+      by its own AS.
+
+4.1.  Single-Domain Batch Authorization Delegation
+
+   In this case, the workflow and the examples are already given in
+   Section 3 Figures. 1-6.
 
 4.2.  Batch Authorization Delegation with Cross-Domain Sub-Clients
 
@@ -652,7 +738,7 @@ Table of Contents
    authorization items.  Since the may_act.aud fields have already been
    used for the domain-level filtering, and the top-level aud claim of
    the JAG already identifies the target AS of domain B, the may_act.aud
-   claim MAY be omitted from the issued JAG.  This step requires trust
+   field MAY be omitted from the issued JAG.  This step requires trust
    relationship between the ASs in Domain A and Domain B.  See
    Section 2.1 of [I-D.ietf-oauth-identity-chaining] for the trust
    relationship establishment.
@@ -691,20 +777,37 @@ Table of Contents
 
    //TODO-too vague
 
-   text { "iss": "https://as.alliance.example.com", "sub":
-   "user@alliance.example.com", "aud":
-   "https://as.alliance.example.com", "client_id":
-   "finance_assistant@alliance.example.com", "exp": 1777881600, "iat":
-   1777795200, "jti": "4a7b203c-e591-4916-b8df-d2b389f4621c",
-   "authorization_details": [ { "type": "benefit_bank_a", "actions":
-   ["search", "calculate"], "locations": ["https://bank_a.example.com/
-   benefits"], "may_act": { "sub": "benefit_agent@bank_a.example.com",
-   "aud": "https://as.bank_a.example.com" } }, { "type":
-   "benefit_bank_b", "actions": ["search", "calculate"], "locations":
-   ["https://bank_b.example.com/benefits"], "may_act": { "sub":
-   "benefit_agent@bank_b.example.com", "aud":
-   "https://as.bank_b.example.com" } } ] } _Figure 8: Batch Token
-   Payload_
+   {
+     "iss": "https://as.alliance.example.com",
+     "sub": "user@alliance.example.com",
+     "aud": "https://as.alliance.example.com",
+     "client_id": "finance_assistant@alliance.example.com",
+     "exp": 1777881600,
+     "iat": 1777795200,
+     "jti": "4a7b203c-e591-4916-b8df-d2b389f4621c",
+     "authorization_details": [
+       {
+         "type": "benefit_bank_a",
+         "actions": ["search", "calculate"],
+         "locations": ["https://bank_a.example.com/benefits"],
+         "may_act": {
+           "sub": "benefit_agent@bank_a.example.com",
+           "aud": "https://as.bank_a.example.com"
+         }
+       },
+       {
+         "type": "benefit_bank_b",
+         "actions": ["search", "calculate"],
+         "locations": ["https://bank_b.example.com/benefits"],
+         "may_act": {
+           "sub": "benefit_agent@bank_b.example.com",
+           "aud": "https://as.bank_b.example.com"
+         }
+       }
+     ]
+   }
+
+   _Figure 8: Batch Token Payload_
 
 4.2.2.2.  JWT Authorization Grant
 
@@ -716,14 +819,26 @@ Table of Contents
    encapsulates the benefit_bank_a item into the JAG.  Moreover, the
    top-level aud claim targets Bank_A's AS.
 
-   text { "iss": "https://as.alliance.example.com", "sub":
-   "user@alliance.example.com", "aud": "https://as.bank_a.example.com",
-   "client_id": "finance_assistant@alliance.example.com", "iat":
-   1777795210, "exp": 1777795300, "authorization_details": [ { "type":
-   "benefit_bank_a", "actions": ["search", "calculate"], "locations":
-   ["https://bank_a.example.com/benefits"], "may_act": { "sub":
-   "benefit_agent@bank_a.example.com" } //TODO - may-act is prefiltered
-   thus does not belong here } ] } _Figure 9: JAG Payload_
+   {
+     "iss": "https://as.alliance.example.com",
+     "sub": "user@alliance.example.com",
+     "aud": "https://as.bank_a.example.com",
+     "client_id": "finance_assistant@alliance.example.com",
+     "iat": 1777795210,
+     "exp": 1777795300,
+     "authorization_details": [
+       {
+         "type": "benefit_bank_a",
+         "actions": ["search", "calculate"],
+         "locations": ["https://bank_a.example.com/benefits"],
+         "may_act": {
+           "sub": "benefit_agent@bank_a.example.com"
+         } //TODO - may-act is prefiltered thus does not belong here
+       }
+     ]
+   }
+
+   _Figure 9: JAG Payload_
 
 4.2.2.3.  Access Token
 
@@ -733,15 +848,27 @@ Table of Contents
    domain// localized for Bank_A's domain, so that the aud claim is set
    to Bank_A's AS for further token exchange.
 
-   text { "iss": "https://as.bank_a.example.com", "sub":
-   "user@alliance.example.com", "aud": "https://as.bank_a.example.com",
-   "client_id": "finance_assistant@alliance.example.com", "iat":
-   1777795220, "exp": 1777881600, "jti": "2d8f93e1-7c5b-4a3d-81ee-
-   629b3f4c7d5a", "authorization_details": [ { "type": "benefit_bank_a",
-   "actions": ["search", "calculate"], "locations":
-   ["https://bank_a.example.com/benefits"], "may_act": { "sub":
-   "benefit_agent@bank_a.example.com" } } ] } _Figure 10: Access Token
-   Payload_
+   {
+     "iss": "https://as.bank_a.example.com",
+     "sub": "user@alliance.example.com",
+     "aud": "https://as.bank_a.example.com",
+     "client_id": "finance_assistant@alliance.example.com",
+     "iat": 1777795220,
+     "exp": 1777881600,
+     "jti": "2d8f93e1-7c5b-4a3d-81ee-629b3f4c7d5a",
+     "authorization_details": [
+       {
+         "type": "benefit_bank_a",
+         "actions": ["search", "calculate"],
+         "locations": ["https://bank_a.example.com/benefits"],
+         "may_act": {
+           "sub": "benefit_agent@bank_a.example.com"
+         }
+       }
+     ]
+   }
+
+   _Figure 10: Access Token Payload_
 
 4.2.2.4.  Downscoped Token
 
@@ -750,19 +877,29 @@ Table of Contents
 
    //TODO there is no Batch Token here// When the benefit_agent
    exchanges the access token, Bank_A's AS matches its authenticated
-   identity with the may_act.sub claim, filters the corresponding
-   permissions and removes the may_act claim entirely.  Moreover,
+   identity with the may_act.sub field, filters the corresponding
+   permissions and removes the may_act field entirely.  Moreover,
    Bank_A's AS sets aud as https://bank_a.example.com/benefits, the
    specific target RS, and sets client_id as benefit_agent.
 
-   text { "iss": "https://as.bank_a.example.com", "sub":
-   "user@alliance.example.com", "client_id":
-   "benefit_agent@bank_a.example.com", "aud":
-   "https://bank_a.example.com/benefits", "iat": 1777795230, "exp":
-   1777881600, "jti": "e9a4f2b1-3d7c-482e-96bb-1823c4d5f6a7",
-   "authorization_details": [ { "type": "benefit_bank_a", "actions":
-   ["search", "calculate"], "locations": ["https://bank_a.example.com/
-   benefits"] } ] } _Figure 11: Downscoped Token Payload_
+   {
+     "iss": "https://as.bank_a.example.com",
+     "sub": "user@alliance.example.com",
+     "client_id": "benefit_agent@bank_a.example.com",
+     "aud": "https://bank_a.example.com/benefits",
+     "iat": 1777795230,
+     "exp": 1777881600,
+     "jti": "e9a4f2b1-3d7c-482e-96bb-1823c4d5f6a7",
+     "authorization_details": [
+       {
+         "type": "benefit_bank_a",
+         "actions": ["search", "calculate"],
+         "locations": ["https://bank_a.example.com/benefits"]
+       }
+     ]
+   }
+
+   _Figure 11: Downscoped Token Payload_
 
 4.3.  Batch Authorization Delegation with the Cross-Domain User
 
@@ -803,7 +940,7 @@ Table of Contents
    Assertion | | | | | <----------------------+ | | | | |(c)Token
    Exchange | | | | | | Request | | | | |
    +----------------------> | | | | |[Identity Assertion] | | | | | 
-   |(d)ID-JAG (with | | | | | | authorization_details| | | | |
+   |(d)ID-JAG with | | | | | | authorization_details| | | | |
    <----------------------+ | | | | |(e)Present ID-JAG | | | | |
    +----------------------+----> | | | |(f)Access Token | | | | |
    <----------------------+----+ | | | |(g)Access Token | | | | |
@@ -844,7 +981,7 @@ Table of Contents
    permissions to different Sub-Clients.  It then initiates a token
    exchange request to Domain A's AS.  This request includes the
    authorization_details parameter, which contains the original content
-   of authorization_details from step (c) along with the may_act claims
+   of authorization_details from step (c) along with the may_act fields
    as designated actors.
 
    (5) Domain A's AS compares the authorization_details in the request
@@ -868,33 +1005,46 @@ Table of Contents
    step (f) and then delivered to the leader-client in step (g).  It
    carries the original permissions without any designated actors.
 
-   text { "iss": "https://as.domain_a.example", "sub":
-   "user@domain_u.example", "aud": "https://as.domain_a.example",
-   "client_id": "user_client@domain_u.example", "exp": 1777881600,
-   "iat": 1777795100, "jti": "init-9a4f2b1c-3d7e-4a2b-8c6d-
-   1e5f9a7b3c2d", "authorization_details": [ { "type": "flight_booking",
-   "actions": ["search", "book"], "locations":
-   ["https://domain_a.example.com/flights"] }, { "type":
-   "hotel_reservation", "actions": ["search", "book"], "locations":
-   ["https://domain_a.example.com/hotels"] } ] } _Figure 13: Access
-   Token Payload_
+   {
+     "iss": "https://as.domain_a.example",
+     "sub": "user@domain_u.example",
+     "aud": "https://as.domain_a.example",
+     "client_id": "user_client@domain_u.example",
+     "exp": 1777881600,
+     "iat": 1777795100,
+     "jti": "init-9a4f2b1c-3d7e-4a2b-8c6d-1e5f9a7b3c2d",
+     "authorization_details": [
+       {
+         "type": "flight_booking",
+         "actions": ["search", "book"],
+         "locations": ["https://domain_a.example.com/flights"]
+       },
+       {
+         "type": "hotel_reservation",
+         "actions": ["search", "book"],
+         "locations": ["https://domain_a.example.com/hotels"]
+       }
+     ]
+   }
+
+   _Figure 13: Access Token Payload_
 
 4.3.2.2.  Token Exchange Request for the Batch Token
 
    The leader-client sends a token exchange request to Domain A's AS,
-   appending the nested may_act claims to the original
+   appending the nested may_act fields to the original
    authorization_details.
 
-   ```text POST /token HTTP/1.1 Host: as.domain_a.example Content-Type:
-   application/x-www-form-urlencoded Authorization: Basic
-   bGVhZGVyLWNsaWVudDpzZWNyZXQ=
+POST /token HTTP/1.1
+Host: as.domain_a.example
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic bGVhZGVyLWNsaWVudDpzZWNyZXQ=
 
-   grant_type=urn:ietf:params:oauth:grant-type:token-exchange
-   &subject_token=[Encoded access token]
-   &subject_token_type=urn:ietf:params:oauth:token-type:access_token
-   &authorization_details=[{"type":"flight_booking","actions":["search","book"],"locations":["https://domain_a.example.com/
-   flights"],"may_act":{"sub":"flight_agent@domain_a.example.com"}},{"type":"hotel_reservation","actions":["search","book"],"locations":["https://domain_a.example.com/
-   hotels"],"may_act":{"sub":"hotel_agent@domain_a.example.com"}}] ```
+grant_type=urn:ietf:params:oauth:grant-type:token-exchange
+&subject_token=[Encoded access token]
+&subject_token_type=urn:ietf:params:oauth:token-type:access_token
+&authorization_details=[{"type":"flight_booking","actions":["search","book"],"locations":["https://domain_a.example.com/flights"],"may_act":{"sub":"flight_agent@domain_a.example.com"}},{"type":"hotel_reservation","actions":["search","book"],"locations":["https://domain_a.example.com/hotels"],"may_act":{"sub":"hotel_agent@domain_a.example.com"}}]
+
    _Figure 14: Token Exchange Request for Batch Token_
 
    The AS verifies that the leader-client has solely appended designated
