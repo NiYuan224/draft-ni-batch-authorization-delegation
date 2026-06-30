@@ -104,9 +104,9 @@ Batch Authorization Delegation: A mechanism proposed in this document that a Lea
 
 Authorization Item: An authorization item defines one permission per one corresponding designated actor. There may be multiple Authorization Items within one `authorization_details`, which is later encapsulated in the rich authorization request and the issued Batch Token.
 
-Batch Token: A JWT issued by the AS to the Leader-Client. It encapsulates multiple Authorization Items, enabling subsequent delegation.
+Batch Token: A special JWT access token issued by the AS to the Leader-Client. It encapsulates multiple Authorization Items, enabling subsequent delegation.
 
-Designated Actor: The may_act claim within an authorization item that specifies the Sub-Client authorized to exercise that permission.
+Designated Actor: The `may_act` claim within an authorization item that specifies the Sub-Client authorized to exercise that permission.
 
 Downscoped Token: The access token issued to a Sub-Client as a result of token exchange, which is to be used at the RS to access protected resources. It contains only a subset of authorization items whose designated actors match the requesting Sub-Client's identity.
 
@@ -124,42 +124,11 @@ Such a mechanism enables the Leader-Client to perform a one-time batch authoriza
 
 Figure 1 shows the flow of Batch Authorization Delegation. Note that a Leader-Client MAY coordinate several Sub-Clients. For simplicity, only one Sub-Client is shown in Figure 1.
 
-~~~
-+----++-------------+    +----+        +----------++----+
-|User||Leader-Client|    | AS |        |Sub-Client|| RS |
-+-+--++------+------+    +--+-+        +--------+-++--+-+
-  |          |(1)RAR        |                   |     |
-  |          |(with may_act)|                   |     |
-  |          +-------------->                   |     |
-  |          |(2)Ask for    |                   |     |
-  |          | consent      |                   |     |
-  <----------+--------------+                   |     |
-  |(3)Consent|              |                   |     |
-  +----------+-------------->                   |     |
-  |          |(4)Issue      |                   |     |
-  |          | Batch Token  |                   |     |
-  |          <--------------+                   |     |
-  |          |(5)Distribute |                   |     |
-  |          | Batch Token  |                   |     |
-  |          +--------------+------------------->     |
-  |          |              |(6)Token exchange  |     |
-  |          |              |   Request         |     |
-  |          |              <-------------------+     |
-  |          |              | [Batch Token]     |     |
-  |          |              |                   |     |
-  |          |              |(7)Verify identity |     |
-  |          |              +-+ &Downscope      |     |
-  |          |              | |                 |     |
-  |          |              <-+                 |     |
-  |          |              |(8)Downscoped Token|     |
-  |          |              +------------------->     |
-  |          |              |(9)access          |     |
-  |          |              |                   +----->
-  |          |              |                   |     |
-~~~
+
+
 *Figure 1: Batch Authorization Delegation Flow*
 
-(1) The Leader-Client sends a rich authorization request containing multiple authorization items to the AS. Each authorization item includes a fine-grained permission (described by several claims defined in {{RFC9396}}, e.g., type, action, location, etc.) and a designated actor that uses the may_act claim to designate which Sub-Client is authorized for the permission.
+(1) The Leader-Client sends a rich authorization request containing multiple authorization items to the AS. Each authorization item includes a fine-grained permission (described by several fields defined in {{RFC9396}}, e.g., `type`, `actions`, `locations`, etc.) and a designated actor that uses the `may_act` claim to designate which Sub-Client is authorized for the permission.
 
 (2) After receiving the rich authorization request, the AS presents all authorization items in the request to the user for consent.
 
