@@ -121,6 +121,7 @@ Such a mechanism enables the Leader-Client to perform a one-time batch authoriza
 ## Overview
 
 Figure 1 shows the flow of Batch Authorization Delegation. Note that a Leader-Client MAY coordinate several Sub-Clients. For simplicity, only one Sub-Client is shown in Figure 1.
+
 ~~~
 +----++-------------+    +----+      +----------++----+
 |User||Leader-Client|    | AS |      |Sub-Client|| RS |
@@ -156,8 +157,6 @@ Figure 1 shows the flow of Batch Authorization Delegation. Note that a Leader-Cl
   |          |              |              |-------->
   |          |              |              |        |
 ~~~
-
-
 
 *Figure 1: Batch Authorization Delegation Flow*
 
