@@ -483,7 +483,7 @@ Steps (1)-(4) are the same as in Figure 1.
 
 (d) The Leader-Client in Domain A presents the JAG for the specific Sub-Client as an assertion to the AS of Domain B.
 
-(e) The AS of Domain B validates the JAG, extracts and encapsulates the filtered authorization items in an access token and sends it to the Leader-Client. 
+(e) The AS of Domain B validates the JAG, extracts and encapsulates the filtered authorization items in an access token and sends it to the Leader-Client.
 
 
 (f) The Leader-Client sends the access token to the Sub-Client.
@@ -565,138 +565,12 @@ The subsequent formats of the access token, token exchange requests, and downsco
 
 
 ## Batch Authorization Delegation with the Cross-Domain User
-In this case, the Leader-Client and Sub-Clients belong to the same trust domain, while the user resides in another trust domain. Each trust domain has its own AS.
 
-### Workflow
-The workflow is a combination of Batch Authorization Delegation and identity assertion {{I-D.ietf-oauth-identity-assertion-authz-grant}}.
-
-The user's client obtains an Identity Assertion from the IdP of Domain U. This Identity Assertion is exchanged for an Identity Assertion JWT Authorization Grant (ID‑JAG) with authorization_details that contains several permissions from Domain U's IdP. The user’s client then directly exchanges this ID‑JAG for an access token from Domain A's AS. This access token is securely delivered to the leader‑client in Domain A.
-
-The leader‑client uses this access token to make a token exchange request to the AS of Domain A, including an authorization_details parameter that carries may_act designated actors. The AS verifies that the leader‑client has only added designated actors without altering the original permissions, and then issues a Batch Token.
-
-The remaining steps are the same as the intra‑domain Batch Authorization Delegation flow: the leader‑client distributes the Batch Token to sub‑clients; each sub‑client performs a token exchange to obtain a Downscoped Token containing only its own permissions and uses the Downscoped Token to access the RS.
-~~~
-+--------+         +--------++--------++-------------+ +----------+ +--------+
-|User’s  |         |  IdP   ||   AS   ||Leader Client| |Sub-Client| |   RS   |
-|client  |         |Domain U||Domain A||   Domain A  | | Domain A | |Domain A|
-|Domain U|         |        ||        ||             | |          | |        |
-+-+------+         +-----+--+++-------++-------+-----+ +-----+----+ +--+-----+
-  |(a)User SSO           |    |                |             |         |
-  +---------------------->    |                |             |         |
-  |(b)Identity Assertion |    |                |             |         |
-  <----------------------+    |                |             |         |
-  |(c)Token Exchange     |    |                |             |         |
-  | Request              |    |                |             |         |
-  +---------------------->    |                |             |         |
-  |[Identity Assertion]  |    |                |             |         |
-  |(d)ID-JAG with        |    |                |             |         |
-  | authorization_details|    |                |             |         |
-  <----------------------+    |                |             |         |
-  |(e)Present ID-JAG     |    |                |             |         |
-  +----------------------+---->                |             |         |
-  |(f)Access Token       |    |                |             |         |
-  <----------------------+----+                |             |         |
-  |(g)Access Token       |    |                |             |         |
-  +----------------------+----+---------------->             |         |
-  |                      |    |(h)Token Exchange             |         |
-  |                      |    | Request        |             |         |
-  |                      |    <----------------+             |         |
-  |                      |    |(4)Issue        |             |         |
-  |                      |    | Batch Token    |             |         |
-  |                      |    +---------------->(5)Distribute|         |
-  |                      |    |                | Batch Token |         |
-  |                      |    |                +------------->         |
-  |                      |    |(6)Token exchange Request     |         |
-  |                      |    <----------------+-------------+         |
-  |                      |    +-+              |             |         |
-  |                      |    | |(7)Match identity&Downscope |         |
-  |                      |    <-+              |             |         |
-  |                      |    |(8)Downscoped Token           |         |
-  |                      |    +----------------+------------->         |
-  |                      |    |                |             |(9)Access|
-  |                      |    |                |             +--------->
-  |                      |    |                |             |         |
-
-  ~~~
-  *Figure 12: Batch Authorization Delegation with the Cross-Domain User*
-
-(a) The user authenticates with the IdP Server.
-
-(b) The user's client obtains an Identity Assertion from the IdP.
-
-(c) The user's client requests an ID-JAG from Domain U's IdP, with authorization_details intended for use at Domain A's AS. This step requires a trust relationship between the IdP in Domain U and the AS in Domain A.
-
-(d) Domain U's IdP issues an ID-JAG to the user's client.
-
-(e) The user's client presents the ID-JAG as an assertion to Domain A's AS.
-
-(f) Domain A's AS issues an access token to the user's client.
-
-(g) The user's client sends a request to the Leader-Client, including the access token.
-
-(h) The Leader-Client orchestrates the task and assigns different permissions to different Sub-Clients. It then initiates a token exchange request to Domain A's AS. This request includes the authorization_details parameter, which contains the original content of authorization_details from step (c) along with the may_act fields as designated actors.
-
-(5) Domain A's AS compares the authorization_details in the request with the original ones, verifies that the Leader-Client has only added designated actors without altering the original permissions, and then issues a Batch Token.
-
-Steps (6)-(9) are the same as in Figure 1.
-
-### Examples
-The following shows the examples of key tokens and messages in the workflow of Figure 11. The steps and messages of token exchange request and response for ID-JAG follow Section 4.3.4.2 in {{I-D.ietf-oauth-identity-assertion-authz-grant}} and are not repeated in this section.
-
-#### Access Token
-This access token is issued by Domain A's AS to the user's client in step (f) and then delivered to the leader‑client in step (g). It carries the original permissions without any designated actors.
-
-~~~
-{
-  "iss": "https://as.domain_a.example",
-  "sub": "user@domain_u.example",
-  "aud": "https://as.domain_a.example",
-  "client_id": "user_client@domain_u.example",
-  "exp": 1777881600,
-  "iat": 1777795100,
-  "jti": "init-9a4f2b1c-3d7e-4a2b-8c6d-1e5f9a7b3c2d",
-  "authorization_details": [
-    {
-      "type": "flight_booking",
-      "actions": ["search", "book"],
-      "locations": ["https://domain_a.example.com/flights"]
-    },
-    {
-      "type": "hotel_reservation",
-      "actions": ["search", "book"],
-      "locations": ["https://domain_a.example.com/hotels"]
-    }
-  ]
-}
-~~~
-*Figure 13: Access Token Payload*
-
-
-#### Token Exchange Request for the Batch Token
-The leader‑client sends a token exchange request to Domain A's AS, appending the nested may_act fields to the original authorization_details.
-
-~~~
-POST /token HTTP/1.1
-Host: as.domain_a.example
-Content-Type: application/x-www-form-urlencoded
-Authorization: Basic bGVhZGVyLWNsaWVudDpzZWNyZXQ=
-
-grant_type=urn:ietf:params:oauth:grant-type:token-exchange
-&subject_token=[Encoded access token]
-&subject_token_type=urn:ietf:params:oauth:token-type:access_token
-&authorization_details=[{"type":"flight_booking","actions":["search","book"],"locations":["https://domain_a.example.com/flights"],"may_act":{"sub":"flight_agent@domain_a.example.com"}},{"type":"hotel_reservation","actions":["search","book"],"locations":["https://domain_a.example.com/hotels"],"may_act":{"sub":"hotel_agent@domain_a.example.com"}}]
-~~~
-*Figure 14: Token Exchange Request for Batch Token*
-
-
-The AS verifies that the leader‑client has solely appended designated actors without modifying the original permissions, and then issues a Batch Token as shown in Figure 3. The subsequent steps, including distribution of the Batch Token to sub‑clients, token exchange initiated by each sub‑client, and issuance of Downscoped Tokens as shown in Figure 6, are identical to the intra‑domain flow.
-
-The handling of verification failures (e.g., rejection or re‑consent) is implementation‑specific and out of scope for this specification.
+When the user resides in a different trust domain from the clients, one potential approach is to explore the combination of batch authorization delegation and identity assertion {{I-D.ietf-oauth-identity-assertion-authz-grant}}. The user's client could obtain an Identity Assertion from its local IdP, exchange it for an Identity Assertion JWT Authorization Grant (ID-JAG) targeting the AS of the leader-client's domain, and then exchange it into an access token for the Leader-Client; the Leader-Client might then exchange this access token to a batch token. Because this pattern introduces the delegation of user's intent, the specific workflow require further analysis and are open for working group discussion.
 
 ## Combined Cross‑Domain Scenario
 
-In some deployments, the user, the leader‑client, and the sub‑clients may each reside in different trust domains. A combination of the workflows defined in Sections 4.2 and 4.3 directly supports this scenario. Therefore, the detailed flow is omitted here for brevity.
-
+In some deployments, the user, the leader‑client, and the sub‑clients may each reside in different trust domains. A combination of the workflows defined in Sections 4.2 and 4.3 directly supports this scenario.
 
 # Security Considerations
 
