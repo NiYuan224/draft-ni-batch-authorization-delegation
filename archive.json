@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-06-28T04:03:43.720355+00:00",
+  "timestamp": "2026-06-30T03:53:11.809529+00:00",
   "repo": "NiYuan224/draft-ni-batch-authorization-delegation",
   "labels": [
     {
@@ -56,24 +56,26 @@
       "id": "PR_kwDOS4b4z87rRbij",
       "title": "edits",
       "url": "https://github.com/NiYuan224/draft-ni-batch-authorization-delegation/pull/1",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "liuchunchi",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "multiple edits\r\n====\r\nnext todo:\r\nctrl+h terminlogy changes \r\nno batch token in cross domain\r\nupdate examples\r\nfix the code\r\nsimplify derivative scenarios",
       "createdAt": "2026-06-27T10:03:40Z",
-      "updatedAt": "2026-06-27T10:04:20Z",
+      "updatedAt": "2026-06-29T06:16:03Z",
       "baseRepository": "NiYuan224/draft-ni-batch-authorization-delegation",
       "baseRefName": "main",
       "baseRefOid": "f4aab550427329ae54db01388f2909db99477b33",
       "headRepository": "NiYuan224/draft-ni-batch-authorization-delegation",
       "headRefName": "pcl-changes",
       "headRefOid": "af9446d91365cf32d528addb3dd92aca5a0fe54b",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2026-06-29T06:16:03Z",
+      "mergedAt": "2026-06-29T06:16:03Z",
+      "mergedBy": "NiYuan224",
+      "mergeCommit": {
+        "oid": "f297399359160d15bf421ea2b586dd22c43c3f31"
+      },
       "comments": [],
       "reviews": [
         {
