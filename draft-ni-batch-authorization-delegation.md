@@ -337,7 +337,7 @@ Figure 4 shows a token exchange request initiated by the Flight-Agent. In this r
  &subject_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
  &actor_token=eyJhb...
  &actor_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
- ~~~
+~~~
 *Figure 4: Token Exchange Request*
 
 The claims of the `actor_token` are detailed in Figure 5.
