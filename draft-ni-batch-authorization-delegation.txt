@@ -289,7 +289,7 @@ Table of Contents
      |          |              | exchange     |        |
      |          |              | request      |        |
      |          |              <--------------+        |
-     |          |              | [Batch Token]|        |
+     |          |              | <Batch Token>|        |
      |          |              |              |        |
      |          |              |(7)Verify     |        |
      |          |              +-+ identity   |        |
@@ -566,7 +566,7 @@ Table of Contents
     Content-Type: application/x-www-form-urlencoded
 
     grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange
-    &subject_token=[Encoded Batch Token]
+    &subject_token=<Encoded Batch Token>
     &subject_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
     &actor_token=eyJhb...
     &actor_token_type=urn%3Aietf%3Aparams%3Aoauth%3Atoken-type%3Ajwt
