@@ -61,7 +61,7 @@ This document describes a mechanism for Batch Authorization Delegation, which en
 
 --- middle
 
-# Introduction
+# Introduction {#intro}
 
 Due to the rise of collaborative service ecosystems and AI Agents, resource access patterns are shifting from a traditional, linear, single client-server model to complex multi-entity orchestration. A task may consists of a batch of sub-tasks, which may require authorizations to different resources. Although a human user can request authorization for each resource, this work is usually carried out by a principal personal assistant AI Agent. While authorizing total privileges to the personal assistant agent is doable, it risks granting excessive privileges to it, thus oppose to the minimal privilege principle. On the other hand, if the principal agent request human authorization for every resource, it will reduce automated efficiency.
 
@@ -69,19 +69,17 @@ Therefore, the core challenge is to request access permissions to a batch of res
 
 Certain use cases include:
 
-* China UnionPay APOP (Agentic Payment Open Protocol) Framework: A central agent from China UnionPay coordinates with multiple bank-specific sub-agents to calculate the best user discounts. The central agent requests a one-time batch authorization for all linked accounts from the user, but precisely delegates privileges so each sub-agent only receives query and payment access for its respective bank, strictly preventing one bank from leaking or spying on another bank's account existence, financial balances, or transaction histories.
+(1) China UnionPay APOP (Agentic Payment Open Protocol) Framework: A central agent from China UnionPay coordinates with multiple bank-specific sub-agents to calculate the best user discounts. The central agent requests a one-time batch authorization for all linked accounts from the user, but precisely delegates privileges so each sub-agent only receives query and payment access for its respective bank, strictly preventing one bank from leaking or spying on another bank's account existence, financial balances, or transaction histories.
 
-* Agentic SOC (Security Operations Center) Orchestration: A central agent coordinates specialized sub-agents for automated incident response. Upon a threat alert, the central agent requests a batch of temporary security permissions from the administrator, then delegates these privileges narrowly, e.g., the threat detection agent only gets access to read and analyze system logs; the entity evaluation agent is only allowed to query threat intelligence to judge malicious IPs; and the incident disposal agent is strictly restricted to executing containment tools, preventing any sub-agent from abusing privileges laterally.
-
-* Office Agent Orchestration: An office agent deploys specialized sub-agents in parallel. It obtains a one-time batch approval from the user, and strictly delegates privileges to each sub-agent: the finance agent is granted access to sensitive internal financial records, while the internet-facing search agent is completely barred from seeing any intranet data. This precise restriction prevents the search agent from leaking confidential enterprise data to public search engines.
+(2) Office Agent Orchestration: An office agent deploys specialized sub-agents in parallel. It obtains a one-time batch approval from the user, and strictly delegates privileges to each sub-agent: the finance agent is granted access to sensitive internal financial records, while the internet-facing search agent is completely barred from seeing any intranet data. This precise restriction prevents the search agent from leaking confidential enterprise data to public search engines.
 
 While the existing OAuth 2.0 protocol and its extensions provide a foundation for authorization, they lack native support for efficient, secure delegation for a batch of coordinated tasks:
 
-* OAuth 2.0{{RFC6749}}:  The OAuth 2.0 authorization framework enables a client to obtain limited access to protected resources on behalf of a resource owner. However, in a multi-entity collaboration scenario, this requires each entity to independently initiate its own authorization flow. This results in multiple user interactions, introducing significant end-to-end latency and severe user fatigue.
+(1) OAuth 2.0{{RFC6749}}:  The OAuth 2.0 authorization framework enables a client to obtain limited access to protected resources on behalf of a resource owner. However, in a multi-entity collaboration scenario, this requires each entity to independently initiate its own authorization flow. This results in multiple user interactions, introducing significant end-to-end latency and severe user fatigue.
 
-* OAuth 2.0 Token Exchange{{RFC8693}}: Token Exchange defines a delegation mechanism and introduces the `may_act` claim to authorize an actor to act on behalf of a subject. However, the `may_act` claim only determines who is authorized to act. It does not provide a way to link or specify which subset of permissions are being delegated to this actor.
+(2) OAuth 2.0 Token Exchange{{RFC8693}}: Token Exchange defines a delegation mechanism and introduces the `may_act` claim to authorize an actor to act on behalf of a subject. However, the `may_act` claim only determines who is authorized to act. It does not provide a way to link or specify which subset of permissions are being delegated to this actor.
 
-* OAuth 2.0 Rich Authorization Request (RAR) {{RFC9396}}: RAR introduces a new parameter `authorization_details` to allow clients to express their fine-grained authorization requirements using the JSON structures. Such a parameter allows several fine-grained permissions to be included in a single authorization request, as well as the issued access token. However, RAR does not currently specify how these structured permissions can be partitioned and delegated to different actors during a subsequent token exchange.
+(3) OAuth 2.0 Rich Authorization Request (RAR) {{RFC9396}}: RAR introduces a new parameter `authorization_details` to allow clients to express their fine-grained authorization requirements using the JSON structures. Such a parameter allows several fine-grained permissions to be included in a single authorization request, as well as the issued access token. However, RAR does not currently specify how these structured permissions can be partitioned and delegated to different actors during a subsequent token exchange.
 
 In summary, the existing OAuth 2.0 protocol and its extensions lack a mechanism to express, partition, and delegate fine-grained structured permissions across multiple collaborating entities.
 
@@ -154,7 +152,7 @@ Figure 1 shows the flow of Batch Authorization Delegation. Note that a Leader-Cl
   |          |              |(8)Downscoped |        |
   |          |              |   Token      |        |
   |          |              +-------------->        |
-  |          |              |              |(9)access
+  |          |              |              |(9)Access
   |          |              |              |-------->
   |          |              |              |        |
 ~~~
@@ -414,97 +412,96 @@ Until now, the main procedures of the Batch Authorization Delegation is done. Th
 
 * Batch Authorization Delegation with a Cross-Domain User: The Leader-Client and Sub-Clients belong to the same trust domain, while the user resides in another trust domain, each managed by its own AS.
 
-* Combined Cross-Domain Scenario: The user, Leader-Client, and Sub-Clients may each reside in different trust domains, each managed by its own AS.
+* Combined Cross-Domain Scenario: The user, Leader-Client, and Sub-Clients each reside in different trust domains, each managed by its own AS.
 
 ## Single-Domain Batch Authorization Delegation
 In this case, the workflow and the examples are already given in {{basic}} Figures. 1-6.
 
 ## Batch Authorization Delegation with Cross-Domain Sub-Clients
-In this case, the user and the Leader-Client belong to the same trust domain, but Sub-Clients reside in one or more other trust domains. Each trust domain has its own AS.
 
 ### Workflow
-The workflow is a combination of Batch Authorization Delegation and identity chaining {{I-D.ietf-oauth-identity-chaining}}.
+The workflow in this case is a combination of Batch Authorization Delegation and identity chaining {{I-D.ietf-oauth-identity-chaining}}.
 
 
-Since the Sub-Client and Leader-Client reside in different trust domains, the Leader-Client in Domain A requests a JWT Authorization Grant (JAG) from the AS in Domain A via token exchange. The AS matches Domain B with the may_act.aud fields in the Batch Token to filter out one or more authorization items, then generates a JAG including only the Domain B-related authorization items.
+Since the Sub-Client and Leader-Client reside in different trust domains, the Leader-Client in Domain A requests JWT Authorization Grants (JAGs) from the AS in Domain A via token exchange. The AS in Domain A inspects both the `may_act.aud` and `may_act.sub` fields within the Batch Token, filters and splits the authorization items to generates an actor-specific JAG for each designated Sub-Client.
 
-The Leader-Client then presents the received JAG as an assertion to the AS in Domain B to obtain an access token, which is subsequently exchanged by the specific Sub-Client in Domain B for a final Downscoped Token. This token exchange ensures that the final Downscoped Token used by the Sub-Client only contains the permissions it required.
+Taking the Sub-Client in Domain B as an example, the Leader-Client then presents the corresponding JAG as an assertion to the AS in Domain B to obtain an access token, which is subsequently exchanged by the specific Sub-Client in Domain B for a final Downscoped Token. This token exchange ensures that the final Downscoped Token is bound to the Sub-Client's own identity and contains only the specific permissions it required.
 
 
 ~~~
-+--------++-------------+   +----------++----------+     +----------++----------+
-|  User  ||Leader-Client|   |    AS    ||    AS    |     |Sub-Client||    RS    |
-|Domain A||   Domain A  |   | Domain A || Domain B |     | Domain B || Domain B |
-+---+----++------+------+   +-------+--++-+--------+     +----+-----++---+------+
-    |            |(1)RAR            |     |                   |          |
-    |            |(with may_act)    |     |                   |          |
-    |            +------------------>     |                   |          |
-    |            |(2)Ask for consent|     |                   |          |
-    <------------+------------------+     |                   |          |
-    |(3)Consent  |                  |     |                   |          |
-    +------------+------------------>     |                   |          |
-    |            |(4)Issue          |     |                   |          |
-    |            | Batch Token      |     |                   |          |
-    |            <------------------+     |                   |          |
-    |            |(a)Token exchange |     |                   |          |
-    |            |   Request        |     |                   |          |
-    |            +------------------>     |                   |          |
-    |            |(b)Verify domain  |     |                   |          |
-    |            |   &Downscope  +--+     |                   |          |
-    |            |               |  |     |                   |          |
-    |            |               +-->     |                   |          |
-    |            |(c)JAGs           |     |                   |          |
-    |            <------------------+     |                   |          |
-    |            |(d)JAGs           |     |                   |          |
-    |            +------------------+----->                   |          |
-    |            |(e)Access Token   |     |                   |          |
-    |            <------------------+-----+                   |          |
-    |            |(f)Access Token   |     |                   |          |
-    |            +------------------+-----+------------------->          |
-    |            |                  |     |(6)Token exchange  |          |
-    |            |                  |     |   Request         |          |
-    |            |                  |     <-------------------+          |
-    |            |                  |     |(7)Verify identity |          |
-    |            |                  |     +-+ &Downscope      |          |
-    |            |                  |     | |                 |          |
-    |            |                  |     <-+                 |          |
-    |            |                  |     |(8)Downscoped Token|          |
-    |            |                  |     +------------------->          |
-    |            |                  |     |                   |(9)access |
-    |            |                  |     |                   +---------->
-    |            |                  |     |                   |          |
++--------++-------------+  +--------++--------+ +----------+ +--------+
+|  User  ||Leader-Client|  |   AS   ||   AS   | |Sub-Client| |   RS   |
+|Domain A||   Domain A  |  |Domain A||Domain B| | Domain B | |Domain B|
++---+----++------+------+  +-----+--++---+----+ +-----+----+ +---+----+
+    |            |(1)RAR         |       |            |          |
+    |            |(with may_act) |       |            |          |
+    |            +--------------->       |            |          |
+    |            |(2)Ask for     |       |            |          |
+    |            | consent       |       |            |          |
+    <------------+---------------+       |            |          |
+    |(3)Consent  |               |       |            |          |
+    +------------+--------------->       |            |          |
+    |            |(4)Issue       |       |            |          |
+    |            | Batch Token   |       |            |          |
+    |            <---------------+       |            |          |
+    |            |(a)Token       |       |            |          |
+    |            | exchange      |       |            |          |
+    |            | request       |       |            |          |
+    |            |--------------->       |            |          |
+    |            |(b)Verify      |       |            |          |
+    |            |   &Downscope  |       |            |          |
+    |            |             +-+       |            |          |
+    |            |             | |       |            |          |
+    |            |(c)JAGs      +->       |            |          |
+    |            <---------------+       |            |          |
+    |            |(d)JAG         |       |            |          |
+    |            +---------------+------->            |          |
+    |            |(e)Access Token|       |            |          |
+    |            <---------------+-------+            |          |
+    |            |(f)Access Token|       |            |          |
+    |            +---------------+-------+------------>          |
+    |            |               |       |(6)Token    |          |
+    |            |               |       | exchange   |          |
+    |            |               |       | Request    |          |
+    |            |               |       <------------|          |
+    |            |               |       |(8)Downscope|          |
+    |            |               |       | Token      |          |
+    |            |               |       +------------>          |
+    |            |               |       |            |(9)access |
+    |            |               |       |            +---------->
+    |            |               |       |            |          |
 ~~~
 *Figure 7: Batch Authorization Delegation with Cross-Domain Sub-Clients*
 
 Steps (1)-(4) are the same as in Figure 1.
 
-(a) The Leader-Client in Domain A exchanges the Batch Token with the AS in Domain A for a JAG that can be used in the AS in Domain B.
+(a) The Leader-Client in Domain A exchanges the Batch Token with the AS in Domain A for actor-specific JAGs that can be used in the AS in Domain B.
 
-(b) The AS of Domain A inspects the may_act.aud fields within the Batch Token, filters the authorization items down to those matching Domain B.
+(b) The AS of Domain A inspects the may_act fields within the Batch Token, filtering and splitting the authorization items down to each target actor in Domain B.
 
-(c) The AS of Domain A issues the JAG including the filtered authorization items. Since the may_act.aud fields have already been used for the domain-level filtering, and the top‑level aud claim of the JAG already identifies the target AS of domain B, the may_act.aud field MAY be omitted from the issued JAG.  This step requires trust relationship between the ASs in Domain A and Domain B.  See Section 2.1 of {{I-D.ietf-oauth-identity-chaining}} for the trust relationship establishment.
+(c) The AS of Domain A issues actor-specific JAGs, with the nested `may_act` field in the `authorization_details` removed. This step requires trust relationship between the ASs in Domain A and Domain B.  See Section 2.1 of {{I-D.ietf-oauth-identity-chaining}} for the trust relationship establishment.
 
-(d) The Leader-Client in Domain A presents the JAG as an assertion to the AS of Domain B.
+(d) The Leader-Client in Domain A presents the JAG for the specific Sub-Client as an assertion to the AS of Domain B.
 
-(e) The AS of Domain B validates the JAG, extracts and encapsulates the filtered authorization items in an access token and sends it to the Leader-Client. This access token itself constitutes a Domain B-specific Batch Token, whose authorization items are a subset of those in the original Batch Token issued in step (4).
+(e) The AS of Domain B validates the JAG, extracts and encapsulates the filtered authorization items in an access token and sends it to the Leader-Client. 
 
-TODO: many JAGs, when in JAGs, there is no may_acts. Distribution is done before crossing the domain boundary.
 
 (f) The Leader-Client sends the access token to the Sub-Client.
 
 Steps (6)-(9) are the same as in Figure 1.
 
+By splitting and filtering batch tokens entirely within the Domain A, the key advantage of the above mechanism is the AS of Domain B is relieved from handling complex batch authorization processing. This minimizes upgrade overhead for downstream ASs, ensuring rapid and seamless compatibility with existing cross-domain OAuth deployments.
+
 ### Examples
 
-The following shows some typical examples in the workflow of Figure 7.
+The following shows some typical examples in the workflow of Figure 7, which is correspond to the use case (1) in {{intro}}.
 
 #### Batch Token
 
 Figure 8 illustrates a Batch Token payload issued by a leading Chinese Financial Alliance's AS in step (4).
 
-The Batch Token contains two authorization items: one for searching and calculating max availble coupons at Bank_A (benefit_agent), and another for the same actions at Bank_B. The may_act.aud field specifies the AS location, while the may_act.sub field specifies the designated actor.
+The Batch Token contains two authorization items: one for searching and calculating max availble coupons at Bank_A (benefit_agent), and another for the same actions at Bank_B. The `may_act.aud` field specifies the AS location, while the `may_act.sub` field specifies the designated actor.
 
-//TODO-too vague
 
 ~~~
 {
@@ -541,9 +538,9 @@ The Batch Token contains two authorization items: one for searching and calculat
 
 
 #### JWT Authorization Grant
-Figure 9 shows the JAG payload issued by the Finance Alliance AS in step (c), specifically filtered for Bank_A's domain.
+Figure 9 shows the JAG payload issued by the Finance Alliance AS in step (c), specifically filtered for Bank_A's benefit_agent.
 
-In accordance with step (b), the Finance Alliance AS inspects the may_act.aud fields of the Batch Token (Figure 8), extracts and encapsulates the benefit_bank_a item into the JAG. Moreover, the top-level aud claim targets Bank_A's AS.
+In accordance with step (b), the Finance Alliance AS inspects the `may_act` fields of the Batch Token (Figure 8), extracts and encapsulates the benefit_bank_a item into the JAG, with the `may_act` field removed.
 
 ~~~
 {
@@ -558,65 +555,14 @@ In accordance with step (b), the Finance Alliance AS inspects the may_act.aud fi
       "type": "benefit_bank_a",
       "actions": ["search", "calculate"],
       "locations": ["https://bank_a.example.com/benefits"],
-      "may_act": {
-        "sub": "benefit_agent@bank_a.example.com"
-      } //TODO - may-act is prefiltered thus does not belong here
     }
   ]
 }
 ~~~
 *Figure 9: JAG Payload*
 
-#### Access Token
-Figure 10 illustrates the cross-domain Access Token payload issued by Bank_A's AS in step (e). As described in step (e), this token constitutes a Batch Token//TODO no more Batch Tokens across the domain// localized for Bank_A's domain, so that the aud claim is set to Bank_A's AS for further token exchange.
+The subsequent formats of the access token, token exchange requests, and downscoped tokens fully reuse the standard profiles defined in Section 3 of {{I-D.ietf-oauth-identity-chaining}}, and are therefore omitted here.
 
-~~~
-{
-  "iss": "https://as.bank_a.example.com",
-  "sub": "user@alliance.example.com",
-  "aud": "https://as.bank_a.example.com",
-  "client_id": "finance_assistant@alliance.example.com",
-  "iat": 1777795220,
-  "exp": 1777881600,
-  "jti": "2d8f93e1-7c5b-4a3d-81ee-629b3f4c7d5a",
-  "authorization_details": [
-    {
-      "type": "benefit_bank_a",
-      "actions": ["search", "calculate"],
-      "locations": ["https://bank_a.example.com/benefits"],
-      "may_act": {
-        "sub": "benefit_agent@bank_a.example.com"
-      }
-    }
-  ]
-}
-~~~
-*Figure 10: Access Token Payload*
-
-#### Downscoped Token
-Figure 11 illustrates the final Downscoped Token payload issued by Bank_A's AS in step (8).
-
-//TODO there is no Batch Token here// When the benefit_agent exchanges the access token, Bank_A's AS matches its authenticated identity with the may_act.sub field, filters the corresponding permissions and removes the may_act field entirely. Moreover, Bank_A's AS sets aud as https://bank_a.example.com/benefits, the specific target RS, and sets client_id as benefit_agent.
-
-~~~
-{
-  "iss": "https://as.bank_a.example.com",
-  "sub": "user@alliance.example.com",
-  "client_id": "benefit_agent@bank_a.example.com",
-  "aud": "https://bank_a.example.com/benefits",
-  "iat": 1777795230,
-  "exp": 1777881600,
-  "jti": "e9a4f2b1-3d7c-482e-96bb-1823c4d5f6a7",
-  "authorization_details": [
-    {
-      "type": "benefit_bank_a",
-      "actions": ["search", "calculate"],
-      "locations": ["https://bank_a.example.com/benefits"]
-    }
-  ]
-}
-~~~
-*Figure 11: Downscoped Token Payload*
 
 ## Batch Authorization Delegation with the Cross-Domain User
 In this case, the Leader-Client and Sub-Clients belong to the same trust domain, while the user resides in another trust domain. Each trust domain has its own AS.
