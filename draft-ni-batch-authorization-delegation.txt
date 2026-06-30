@@ -266,19 +266,41 @@ Table of Contents
 
    Figure 1 shows the flow of Batch Authorization Delegation.  Note that
    a Leader-Client MAY coordinate several Sub-Clients.  For simplicity,
-   only one Sub-Client is shown in Figure 1. ~~~ +----++-------------+
-   +----+ +----------++----+ |User||Leader-Client| | AS | |Sub-Client||
-   RS | +-+--++------+------+ +--+-+
-   +-----+----++--+-+ | |(1)RAR | | | | |(with may_act)| | | |
-   +--------------> | | | |(2)Ask for | | | | | consent | | |
-   <----------+--------------+ | | |(3)Consent| | | |
-   +----------+--------------> | | | |(4)Issue | | | | | Batch
-   Token | | | | <--------------+ | | | |(5)Distribute | | | | | Batch
-   Token | | | | |--------------+--------------> | | | |(6)Token | | | | |
-   exchange | | | | | request | | | | <--------------+ | | | | [Batch
-   Token]| | | | | | | | | |(7)Verify | | | | +-+ identity | | | | | |
-   &Downscope | | | | <-+ | | | | |(8)Downscoped | | | | | Token | | | |
-   +--------------> | | | | |(9)Access | | | |--------> | | | | | ~~~
+   only one Sub-Client is shown in Figure 1.
+
+   +----++-------------+    +----+      +----------++----+
+   |User||Leader-Client|    | AS |      |Sub-Client|| RS |
+   +-+--++------+------+    +--+-+      +-----+----++--+-+
+     |          |(1)RAR        |              |        |
+     |          |(with may_act)|              |        |
+     |          +-------------->              |        |
+     |          |(2)Ask for    |              |        |
+     |          | consent      |              |        |
+     <----------+--------------+              |        |
+     |(3)Consent|              |              |        |
+     +----------+-------------->              |        |
+     |          |(4)Issue      |              |        |
+     |          | Batch Token  |              |        |
+     |          <--------------+              |        |
+     |          |(5)Distribute |              |        |
+     |          | Batch Token  |              |        |
+     |          |--------------+-------------->        |
+     |          |              |(6)Token      |        |
+     |          |              | exchange     |        |
+     |          |              | request      |        |
+     |          |              <--------------+        |
+     |          |              | [Batch Token]|        |
+     |          |              |              |        |
+     |          |              |(7)Verify     |        |
+     |          |              +-+ identity   |        |
+     |          |              | | &Downscope |        |
+     |          |              <-+            |        |
+     |          |              |(8)Downscoped |        |
+     |          |              |   Token      |        |
+     |          |              +-------------->        |
+     |          |              |              |(9)Access
+     |          |              |              |-------->
+     |          |              |              |        |
 
    _Figure 1: Batch Authorization Delegation Flow_
 
