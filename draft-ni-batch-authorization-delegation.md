@@ -69,17 +69,17 @@ Therefore, the core challenge is to request access permissions to a batch of res
 
 Certain use cases include:
 
-(1) China UnionPay APOP (Agentic Payment Open Protocol) Framework: A central agent from China UnionPay coordinates with multiple bank-specific sub-agents to calculate the best user discounts. The central agent requests a one-time batch authorization for all linked accounts from the user, and precisely delegates privileges so that each sub-agent only receives query and payment access for its respective bank. This strictly preventa one bank from leaking or spying on another bank's account existence, financial balances, or transaction histories.
+**(1) China UnionPay APOP (Agentic Payment Open Protocol) Framework:** A central agent from China UnionPay coordinates with multiple bank-specific sub-agents to calculate the best user discounts. The central agent requests a one-time batch authorization for all linked accounts from the user, and precisely delegates privileges so that each sub-agent only receives query and payment access for its respective bank. This strictly preventa one bank from leaking or spying on another bank's account existence, financial balances, or transaction histories.
 
-(2) Office Agent Orchestration: An office agent coordinates the generation of a market insight report slide by deploying three specialized sub-agents in parallel based on a one-time batch approval from the user. It strictly delegates privileges to each sub-agent: the finance sub-agent is granted access to internal financial records, the internet search sub-agent is completely barred from seeing any intranet data to prevent confidential leaks during web queries, and the slide generator sub-agent is authorized to generate and save the final presentation using the aggregated outputs. Without batch authorization, the workflow would stall whenever a sub-agent reaches its specific sub-task and attempts to request its required permission, such as fetching external web resources or requesting file-write permissions. Asynchronously prompting the user for these consents would inevitably cause task blockages and ruin the automated multi-agent experience, which is unacceptable.
+**(2) Office Agent Orchestration:** An office agent coordinates the generation of a market insight report slide by deploying three specialized sub-agents in parallel based on a one-time batch approval from the user. It strictly delegates privileges to each sub-agent: the finance sub-agent is granted access to internal financial records, the internet search sub-agent is completely barred from seeing any intranet data to prevent confidential leaks during web queries, and the slide generator sub-agent is authorized to generate and save the final presentation using the aggregated outputs. Without batch authorization, the workflow would stall whenever a sub-agent reaches its specific sub-task and attempts to request its required permission, such as fetching external web resources or requesting file-write permissions. Asynchronously prompting the user for these consents would inevitably cause task blockages and ruin the automated multi-agent experience, which is unacceptable.
 
 While the existing OAuth 2.0 protocol and its extensions provide a foundation for authorization, they lack native support for efficient, secure delegation for a batch of coordinated tasks:
 
-(1) OAuth 2.0{{RFC6749}}:  The OAuth 2.0 authorization framework enables a client to obtain limited access to protected resources on behalf of a resource owner. However, in a multi-entity collaboration scenario, this requires each entity to independently initiate its own authorization flow. This results in multiple user interactions, introducing significant end-to-end latency and severe user fatigue.
+**(1) OAuth 2.0{{RFC6749}}:**  The OAuth 2.0 authorization framework enables a client to obtain limited access to protected resources on behalf of a resource owner. However, in a multi-entity collaboration scenario, this requires each entity to independently initiate its own authorization flow. This results in multiple user interactions, introducing significant end-to-end latency and severe user fatigue.
 
-(2) OAuth 2.0 Token Exchange{{RFC8693}}: Token Exchange defines a delegation mechanism and introduces the `may_act` claim to authorize an actor to act on behalf of a subject. However, the `may_act` claim only determines who is authorized to act. It does not provide a way to link or specify which subset of permissions are being delegated to this actor.
+**(2) OAuth 2.0 Token Exchange{{RFC8693}}:** Token Exchange defines a delegation mechanism and introduces the `may_act` claim to authorize an actor to act on behalf of a subject. However, the `may_act` claim only determines who is authorized to act. It does not provide a way to link or specify which subset of permissions are being delegated to this actor.
 
-(3) OAuth 2.0 Rich Authorization Request (RAR) {{RFC9396}}: RAR introduces a new parameter `authorization_details` to allow clients to express their fine-grained authorization requirements using the JSON structures. Such a parameter allows several fine-grained permissions to be included in a single authorization request, as well as the issued access token. However, RAR does not currently specify how these structured permissions can be partitioned and delegated to different actors during a subsequent token exchange.
+**(3) OAuth 2.0 Rich Authorization Request (RAR) {{RFC9396}}:** RAR introduces a new parameter `authorization_details` to allow clients to express their fine-grained authorization requirements using the JSON structures. Such a parameter allows several fine-grained permissions to be included in a single authorization request, as well as the issued access token. However, RAR does not currently specify how these structured permissions can be partitioned and delegated to different actors during a subsequent token exchange.
 
 In summary, the existing OAuth 2.0 protocol and its extensions lack a mechanism to express, partition, and delegate fine-grained structured permissions across multiple collaborating entities.
 
@@ -243,7 +243,7 @@ The lead-client sends an authorization request that contains `authorization_deta
 
 After user consent, the AS issues an authorization code as a grant to the Leader-Client. The Leader-Client then exchanges the authorization code for a Batch Token, following the standard authorization response and token request flow as defined in {{RFC6749}}.
 
-Subsequently, the AS generates a Batch Token and returns it to the Leader-Client in the Token response. The Batch Token is a JWT access token conforming to {{RFC9068}}, with the following claims and values:
+Subsequently, the AS generates a Batch Token and returns it to the Leader-Client in the Token response. The Batch Token is a JWT access token conforming to {{RFC9068}}, with the following claims and values.
 
 ### Batch Token Claims
 
@@ -325,7 +325,7 @@ Since the AS has to identify the requesting Sub-Client to filter the authorizati
 
 *  Actor token as defined in {{RFC8693}}.
 
-Figure 4 shows a token exchange request initiated by the Flight-Agent. In this request, the Flight-Agent provides the received Batch Token from Figure 3 as the `subject_token`. To satisfy the requirement for client authentication, the Flight-Agent provides its own identity token as an `actor_token` (detailed in Figure 5).
+Figure 4 shows a token exchange request initiated by the Flight-Agent. In this request, the Flight-Agent provides the received Batch Token from Figure 3 as the `subject_token`. To satisfy the requirement for client authentication, the Flight-Agent provides its own identity token as an `actor_token`.
 
 ~~~
  POST /as/token.oauth2 HTTP/1.1
@@ -343,6 +343,7 @@ Figure 4 shows a token exchange request initiated by the Flight-Agent. In this r
  ~~~
 *Figure 4: Token Exchange Request*
 
+The claims of the `actor_token` are detailed in Figure 5.
 
 ~~~
 {
