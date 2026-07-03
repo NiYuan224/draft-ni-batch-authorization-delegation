@@ -2,7 +2,7 @@
 title: "Batch Authorization Delegation"
 category: info
 
-docname: draft-ni-batch-authorization-delegation-latest
+docname: draft-ni-oauth-batch-authorization-delegation-latest
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
@@ -22,8 +22,8 @@ venue:
 #  type: Working Group
 #  mail: oauth@ietf.org
 #  arch: https://example.com/WG
-  github: "NiYuan224/draft-ni-batch-authorization-delegation"
-  latest: "https://NiYuan224.github.io/draft-ni-batch-authorization-delegation/draft-ni-batch-authorization-delegation.html"
+  github: "NiYuan224/draft-ni-oauth-batch-authorization-delegation"
+  latest: "https://NiYuan224.github.io/draft-ni-oauth-batch-authorization-delegation/draft-ni-oauth-batch-authorization-delegation.html"
 
 author:
  -
