@@ -1,7 +1,7 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-02T03:49:16.309961+00:00",
-  "repo": "NiYuan224/draft-ni-batch-authorization-delegation",
+  "timestamp": "2026-07-05T03:39:00.180189+00:00",
+  "repo": "NiYuan224/draft-ni-oauth-batch-authorization-delegation",
   "labels": [
     {
       "name": "bug",
@@ -55,7 +55,7 @@
       "number": 1,
       "id": "PR_kwDOS4b4z87rRbij",
       "title": "edits",
-      "url": "https://github.com/NiYuan224/draft-ni-batch-authorization-delegation/pull/1",
+      "url": "https://github.com/NiYuan224/draft-ni-oauth-batch-authorization-delegation/pull/1",
       "state": "MERGED",
       "author": "liuchunchi",
       "authorAssociation": "COLLABORATOR",
@@ -64,10 +64,10 @@
       "body": "multiple edits\r\n====\r\nnext todo:\r\nctrl+h terminlogy changes \r\nno batch token in cross domain\r\nupdate examples\r\nfix the code\r\nsimplify derivative scenarios",
       "createdAt": "2026-06-27T10:03:40Z",
       "updatedAt": "2026-06-29T06:16:03Z",
-      "baseRepository": "NiYuan224/draft-ni-batch-authorization-delegation",
+      "baseRepository": "NiYuan224/draft-ni-oauth-batch-authorization-delegation",
       "baseRefName": "main",
       "baseRefOid": "f4aab550427329ae54db01388f2909db99477b33",
-      "headRepository": "NiYuan224/draft-ni-batch-authorization-delegation",
+      "headRepository": "NiYuan224/draft-ni-oauth-batch-authorization-delegation",
       "headRefName": "pcl-changes",
       "headRefOid": "af9446d91365cf32d528addb3dd92aca5a0fe54b",
       "closedAt": "2026-06-29T06:16:03Z",
